@@ -3,7 +3,6 @@
 
 #include "base.h"
 #include "chessboard.h"
-#include "mainwindow.h"
 
 #include <QBrush>
 #include <QColor>
