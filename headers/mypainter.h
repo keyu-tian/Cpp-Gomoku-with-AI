@@ -3,6 +3,7 @@
 
 #include "base.h"
 #include "chessboard.h"
+#include "mainwindow.h"
 
 #include <QBrush>
 #include <QColor>
@@ -30,10 +31,6 @@ enum RADIUS
 	CHESS_R = 14,
 	DETECT_R = GRID_W/2-2
 };
-
-
-
-class MainWindow;
 
 class MyPainter : public QPainter
 {
