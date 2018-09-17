@@ -5,11 +5,11 @@
 // **************** 宏常量： ****************
 
 // 棋型掩码（ M -- Mask ）
-#define M_0			0			// 空棋型
-#define M_AI_C5		0x1			// AI  连五
-#define M_HU_C5		0x2			// Man 连五
-#define M_AI_A4		0x4			// AI  活四
-#define M_HU_A4		0x8			// Man 活四
+#define M_0		0		// 空棋型
+#define M_AI_C5		0x1		// AI  连五
+#define M_HU_C5		0x2		// Man 连五
+#define M_AI_A4		0x4		// AI  活四
+#define M_HU_A4		0x8		// Man 活四
 #define M_AI_P4		0x10		// AI  冲四
 #define M_HU_P4		0x20		// Man 冲四
 #define M_AI_A3		0x40		// AI  活三
@@ -64,8 +64,6 @@
 #define A3score		4990		// 活三
 #define S3score		410		// 眠三 最初分
 #define A2score		450		// 活二 最初分
-//#define S3score	400		// 眠三 曾经改成这个分数
-//#define A2score	520		// 活二 曾经改成这个分数
 #define S2score		70		// 眠二
 #define A1score		30		// 活一
 
