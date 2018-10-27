@@ -1,5 +1,5 @@
-#ifndef SET_STYLE_H
-#define SET_STYLE_H
+#ifndef UI_STYLE_H
+#define UI_STYLE_H
 
 #include <QString>
 
@@ -73,4 +73,4 @@ const QString TITLE_BUTTON_STYLE[] = {
 		//鼠标悬停样式（无）
 		};
 
-#endif // SET_STYLE_H
+#endif // UI_STYLE_H
