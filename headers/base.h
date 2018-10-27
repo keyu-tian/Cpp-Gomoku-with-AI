@@ -3,27 +3,35 @@
 
 #include <QDebug>
 
-enum GRID_PARAMETER
+enum CHESSID
+{
+	NO_CHESS	=	0x0,
+	AI_CHESS	=	0x1,
+	H1_CHESS	=	0x2,
+	H2_CHESS	=	0x3,
+	OUT_CHESS	=	0x3
+};
+
+enum GRID_CNT
 {
 	GRID_N   = 15,
-	GRID_DN  = 19,
-	GRID_W   = 40,
-	GRID_OUT = 2,
+	GRID_DN  = 21
 };
 
-enum CHESS_ID
+enum CTRL_BUTTON_INDEX
 {
-	NO_CHESS,
-	AI_CHESS,
-	H1_CHESS,
-	H2_CHESS,
-	CHESS_ID_N
+	NEW_BUTTON,
+	RESTART_BUTTON,
+	RETRACT_BUTTON,
+	CHANGE_BUTTON,
+	CTRL_BUTTON_N
 };
 
-enum : bool
+enum TITLE_BUTTON_INDEX
 {
-	BLACK = true,
-	WHITE = false
+	MINI_BUTTON,
+	CLOSE_BUTTON,
+	TITLE_BUTTON_N
 };
 
 struct Grid
@@ -37,7 +45,6 @@ struct Choice
 {
 	int x, y;
 	int prior;
-	bool operator < (const Choice &c) const;
 };
 
 typedef char Chessid;
