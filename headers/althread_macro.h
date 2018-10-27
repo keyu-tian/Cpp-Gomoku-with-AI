@@ -4,12 +4,13 @@
 
 // **************** 宏常量： ****************
 
+
 // 棋型标志位（ F -- Flag ）
-#define F_0			0			// 空棋型
-#define F_AI_C5		0x1			// AI  连五
-#define F_HU_C5		0x2			// Man 连五
-#define F_AI_A4		0x4			// AI  活四
-#define F_HU_A4		0x8			// Man 活四
+#define F_0			0		// 空棋型
+#define F_AI_C5		0x1		// AI  连五
+#define F_HU_C5		0x2		// Man 连五
+#define F_AI_A4		0x4		// AI  活四
+#define F_HU_A4		0x8		// Man 活四
 #define F_AI_P4		0x10		// AI  冲四
 #define F_HU_P4		0x20		// Man 冲四
 #define F_AI_A3		0x40		// AI  活三
@@ -23,8 +24,8 @@
 #define F_AI_A1		0x4000		// AI  活一
 #define F_HU_A1		0x8000		// Man 活一
 
-#define F_C5		0x3			// 任何玩家连五
-#define F_A4		0xc			// 任何玩家活四
+#define F_C5		0x3		// 任何玩家连五
+#define F_A4		0xc		// 任何玩家活四
 #define F_P4		0x30		// 任何玩家冲四
 #define F_A3		0xc0		// 任何玩家活三
 #define F_S3		0x300		// 任何玩家眠三
