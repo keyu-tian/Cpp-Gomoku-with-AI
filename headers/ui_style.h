@@ -13,12 +13,12 @@ const QString CTRL_BUTTON_STYLE =
 		"border-color:rgba(68,68,68,220);"		// 边框颜色
 		"font:bold 13px;"				// 字体，字体大小
 		"color:rgba(58,58,58,230);"			// 字体颜色
-		"padding:4px;"					// 填衬
+		"padding:4px;"					//填衬
 		"}"
 		//鼠标按下样式
 		"QPushButton:pressed{"
 		"background-color:rgba(42,42,42,255);"
-		"border-width:4px;"				// 边框宽度像素
+		"border-width:4px;"				//边框宽度像素
 		"border-color:rgba(234,234,234,255);"
 		"border-style:inset;"
 		"color:rgba(200,200,200,255);"
@@ -58,13 +58,13 @@ const QString TITLE_BUTTON_STYLE[] = {
 		"}",
 
 		"QPushButton{"
-		"background-color:rgba(68,68,68,0);"		// 背景色（也可以设置图片）
-		"border-style:outset;"				// 边框样式（inset/outset）
-		"border-width:2px;"				// 边框宽度像素
-		"border-radius:15px;"				// 边框圆角半径像素
-		"border-color:rgba(68,68,68,0);"		// 边框颜色
-		"font:bold 23px;"				// 字体，字体大小
-		"color:rgba(68,68,68,240);"			// 字体颜色
+		"background-color:rgba(68,68,68,0);"
+		"border-style:outset;"
+		"border-width:2px;"
+		"border-radius:15px;"
+		"border-color:rgba(68,68,68,0);"
+		"font:bold 23px;"
+		"color:rgba(68,68,68,240);"
 		"}"
 		//鼠标按下样式
 		"QPushButton:pressed{"
