@@ -3,14 +3,11 @@
 
 #include <QDebug>
 
-enum CHESSID
-{
-	NO_CHESS	=	0x0,
-	AI_CHESS	=	0x1,
-	H1_CHESS	=	0x2,
-	H2_CHESS	=	0x3,
-	OUT_CHESS	=	0x3
-};
+#define NO_CHESS	0x0
+#define AI_CHESS	0x1
+#define H1_CHESS	0x2
+#define H2_CHESS	0x3
+#define OUT_CHESS	0x3
 
 enum GRID_CNT
 {
