@@ -73,11 +73,11 @@ class MainWindow : public QMainWindow
 	protected:
 
 		// UI相关
-		virtual void paintEvent(QPaintEvent *event);
+		virtual void paintEvent(QPaintEvent *event);		// 绘图函数
 		virtual void mouseMoveEvent(QMouseEvent *event);	// 监听鼠标，显示标记节点
 		virtual void mouseReleaseEvent(QMouseEvent *event);	// 玩家落子
 		virtual void mousePressEvent(QMouseEvent *event);	// 窗口移动
-		virtual void closeEvent(QCloseEvent* event);
+		virtual void closeEvent(QCloseEvent* event);		// 窗口关闭
 };
 
 #endif // MAINWINDOW_H
