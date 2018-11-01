@@ -1,4 +1,4 @@
-#include "chessboard.h"
+#include "chess_board.h"
 #include <cstring>
 
 ChessBoard::ChessBoard()
@@ -6,7 +6,7 @@ ChessBoard::ChessBoard()
 
 }
 
-void ChessBoard::init()
+void ChessBoard::initBoard()
 {
 	memset(board, 0, sizeof(board));
 }
@@ -19,6 +19,22 @@ void ChessBoard::putChess(int x, int y, Chessid id)
 void ChessBoard::takeChess(int x, int y)
 {
 	board[y][x] = NO_CHESS;
+}
+
+void ChessBoard::setBlackPlayerID(Chessid id)
+{
+	this->black_player_id = id;
+}
+
+Chessid ChessBoard::getBlackPlayerID() const
+{
+	return this->black_player_id;
+}
+
+bool ChessBoard::isInside(int r, int c) const
+{
+	return r>=0 && r<GRID_N &&
+		   c>=0 && c<GRID_N;
 }
 
 bool ChessBoard::isInside(const Grid &c) const
@@ -36,60 +52,47 @@ bool ChessBoard::isAvaliable(const Grid &c) const
 
 bool ChessBoard::win(const Grid &just_now, const Chessid id)
 {
-	int r, c, cnt, x, y;
-	x = just_now.x;
-	y = just_now.y;
+	static const int dr[] = {-1, 1, 0, 0, 1, 1, -1, -1};
+	static const int dc[] = {0, 0, -1, 1, 1, -1, 1, -1};
+	int r, c, r0, c0, cnt;
+	r0 = just_now.y;
+	c0 = just_now.x;
 
-	r=x, c=y, cnt=0;
-	while (c<GRID_N && board[r][c] == id)
-		cnt++, c++;
-	c = y-1;
-	while ( c>=0 && board[r][c] == id)
-		cnt++, c--;
-	if (cnt>=5)
-		return true;
+	bool isWin = false;
 
-	r=x, c=y, cnt=0;
-	while ( r<GRID_N && board[r][c] == id)
-		cnt++, r++;
-	r = x-1;
-	while (  r>=0 && board[r][c] == id)
-		cnt++, r--;
-	if (cnt>=5)
-		return true;
+	for (int i=0; i<8; i++)
+	{
+		cnt = 1;
 
-	r=x, c=y, cnt=0;
-	while ( c<GRID_N && r<GRID_N && board[r][c] == id)
-		cnt++,c++,r++;
-	c=y-1, r=x-1;
-	while ( r>=0  && c>=0  && board[r][c] == id)
-		cnt++, c--, r--;
-	if (cnt>=5)
-		return true;
+		r = r0 + dr[i];
+		c = c0 + dc[i];
+		while (isInside(r, c) && board[r][c] == id)
+		{
+			cnt++;
+			r += dr[i];
+			c += dc[i];
+		}
 
-	r=x, c=y, cnt=0;
-	while ( c<GRID_N && r>=0  && board[r][c] == id)
-		cnt++, c++, r--;
-	c=y-1, r=x+1;
-	while ( c>=0  && r<GRID_N && board[r][c] == id)
-		cnt++, c--, r++;
-	if (cnt>=5)
-		return true;
+		r = r0 - dr[i];
+		c = c0 - dc[i];
+		while (isInside(r, c) && board[r][c] == id)
+		{
+			cnt++;
+			r -= dr[i];
+			c -= dc[i];
+		}
 
-	return false;
+		if (cnt>=5)
+		{
+			isWin = true;
+			break;
+		}
+	}
+
+	return isWin;
 }
 
 Chessid ChessBoard::getChessID(int x, int y) const
 {
 	return board[y][x];
-}
-
-Chessid ChessBoard::getWhiteID() const
-{
-	return white_player_id;
-}
-
-Chessid ChessBoard::getBlackID() const
-{
-	return black_player_id;
 }
