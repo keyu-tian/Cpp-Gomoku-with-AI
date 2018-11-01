@@ -17,10 +17,10 @@ class ChessBoard
 		void initBoard();
 		void putChess(int x, int y, Chessid id);
 		void takeChess(int x, int y);
-		Chessid getChessID(int x, int y) const;
 
-		void setBlackPlayerID(Chessid id);
+		Chessid getChessID(int x, int y) const;
 		Chessid getBlackPlayerID() const;
+		void setBlackPlayerID(Chessid id);
 
 		bool isInside(int r, int c) const;
 		bool isInside(const Grid &c) const;
