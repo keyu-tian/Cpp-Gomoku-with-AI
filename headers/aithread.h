@@ -2,8 +2,8 @@
 #define AITHREAD_H
 
 #include <QThread>
-#include "base.h"
 #include "aithread_macro.h"
+#include "base.h"
 
 class AiThread : public QThread
 {
