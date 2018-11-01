@@ -3,6 +3,7 @@
 
 #include "base.h"
 
+
 enum SCREEN_SIZE_PARAM
 {
 	SCREEN_W = 790,
