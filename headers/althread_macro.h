@@ -59,33 +59,30 @@
 #define I_HU_A1		16			// Man 活一
 
 // 棋型对应分数
-#define C5score     135000	 // 连五
-#define A4score     25000	 // 活四
-#define P4score     5201	 // 冲四
-#define A3score		4991	 // 活三
-#define S3score		410		 // 眠三 最初分
-#define A2score		450		 // 活二 最初分
-//#define S3score		400		 // 眠三 曾经改成过这个分数
-//#define A2score		520		 // 活二 曾经改成过这个分数
-#define S2score		70		 // 眠二
-#define A1score		30		 // 活一
+#define C5score     	135000		// 连五
+#define A4score     	25000		// 活四
+#define P4score     	5201		// 冲四
+#define A3score		4991		// 活三
+#define S3score		410		// 眠三 最初分
+#define A2score		450		// 活二 最初分
+#define S2score		70		// 眠二
+#define A1score		30		// 活一
 
-#define Plus44score	8500	 // 双冲四奖励
-//#define Plus44score	10000	 // 历史双冲四奖励
-#define Plus34score	6550	 // 冲四活三或者双活三奖励
+#define Plus44score	8500		// 双冲四奖励
+#define Plus34score	6550		// 冲四活三或者双活三奖励
 
-#define CHESS_TYPE_N			17			// 棋型种数
+#define CHESS_TYPE_N	17		// 棋型种数
 
-#define MAX_INDEX_OF_M_TABLE 0xeaa+1		// 棋型哈希表大小
-											// 最大的下标是 111010101010B（eaaH），也就是OUT_CHESS加上5个H1_CHESS
+#define MAX_INDEX_OF_M_TABLE 0xeaa+1	// 棋型哈希表大小
+					// 最大的下标是 111010101010B（eaaH），也就是OUT_CHESS加上5个H1_CHESS
 
-#define INF 0xffffff						// 极大极小搜索的初始化值
+#define INF 0xffffff			// 极大极小搜索的初始化值
 
-#define MASK 0xfff							// 一次性取出 6 个格子（12位）的 mask
+#define MASK 0xfff			// 一次性取出 6 个格子（12位）的 mask
 #define WIN_SCORE_FIX C5score +10-depth		// AI 必胜时，AI 应优先选择最近杀棋，故层数越高分数越低
 #define LOSE_SCORE_FIX -C5score -10+depth	// AI 必败时，AI 应延缓杀棋，故层数越高分数越高（绝对值越小）
 
-#define KILL_PRIOR 768						// 存在双活三或者更强的棋型
+#define KILL_PRIOR 768				// 存在双活三或者更强的棋型
 
 
 // **************** 宏函数： ****************
@@ -174,21 +171,21 @@
 // 避免棋型重复（有了活四则忽略冲四与活三，有了冲四则忽略活三与眠三）
 #define __dl(line_type, BW)				\
 	if (line_type & F_##BW##A4)			\
-	{									\
+	{						\
 		line_type &= F_D##BW##P4;		\
 		if (line_type & F_##BW##S3)		\
 			line_type &= F_D##BW##S3;	\
-	}									\
-	else if (line_type & F_##BW##P4)	\
-	{									\
+	}						\
+	else if (line_type & F_##BW##P4)		\
+	{						\
 		if (line_type & F_##BW##A3)		\
 			line_type &= F_D##BW##A3;	\
 		if (line_type & F_##BW##S3)		\
 			line_type &= F_D##BW##S3;	\
 	}
 #define DEAL_34(line_type)		\
-	do							\
-	{							\
+	do				\
+	{				\
 		__dl(line_type, AI_)	\
 		__dl(line_type, HU_)	\
 	} while(0)
@@ -200,18 +197,18 @@
 // 估计某条线上的 眠三及以上的棋型丰富程度
 #define EVAL_MIN_MAX_PRIOR(line_chess)			\
 		if(M_TABLE[line_chess & MASK] & F_C5)	\
-			return 16384;						\
+			return 16384;			\
 		if(M_TABLE[line_chess & MASK] & F_A4)	\
-		{										\
-			min_max_prior += 2048;				\
-			break;								\
-		}										\
+		{					\
+			min_max_prior += 2048;		\
+			break;				\
+		}					\
 		if(M_TABLE[line_chess & MASK] & F_P4)	\
-			min_max_prior += 256;				\
+			min_max_prior += 256;		\
 		if(M_TABLE[line_chess & MASK] & F_A3)	\
-			min_max_prior += 256;				\
+			min_max_prior += 256;		\
 		if(M_TABLE[line_chess & MASK] & F_A2)	\
-			min_max_prior += 16;				\
+			min_max_prior += 16;		\
 		if(M_TABLE[line_chess & MASK] & F_S3)	\
 			min_max_prior += 14
 //		历史：min_max_prior += 30;
