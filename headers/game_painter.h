@@ -10,7 +10,6 @@
 #include "chess_board.h"
 #include "ui_size_param.h"
 
-
 class GamePainter : public QPainter
 {
 	public:
