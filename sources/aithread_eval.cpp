@@ -156,19 +156,19 @@ int AiThread::evalKilledScore(Chessid cur_player, int depth)
 	else
 	{
 		if (all_type[I_HU_C5])
-			return LOSE_SCORE_FIX-4;// 我方早就有5了，必胜
+			return LOSE_SCORE_FIX-4;	// 我方早就有5了，必胜
 		if (all_type[I_AI_C5])
-			return WIN_SCORE_FIX+4;// 对方有5，我方必败
+			return WIN_SCORE_FIX+4;		// 对方有5，我方必败
 		if (all_type[I_HU_A4] || all_type[I_HU_P4])
-			return LOSE_SCORE_FIX-3;// 我方有四必胜
+			return LOSE_SCORE_FIX-3;	// 我方有四必胜
 		if (all_type[I_AI_A4] || all_type[I_AI_P4]>=2)
-			return WIN_SCORE_FIX+3;// 对方有活4或双冲四，我方必败
+			return WIN_SCORE_FIX+3;		// 对方有活4或双冲四，我方必败
 
 //	②双方没有5、对方可能有冲四、我方没有四
 		if (all_type[I_AI_P4])
 		{
 			if (all_type[I_AI_A3] && !all_type[I_HU_A3] && !all_type[I_HU_S3])
-				return WIN_SCORE_FIX+2;// 对方冲四活三，我方无三，我方必败
+				return WIN_SCORE_FIX+2;	// 对方冲四活三，我方无三，我方必败
 		}
 
 //	③双方没有5、4
