@@ -362,7 +362,7 @@ int AiThread::getMinMaxSearchChoices(Choice *choices_buffer, Chessid cur_player)
 			else break;
 		}
 
-		if( kill_cnt>=3 && kill_cnt + KILL_NUM < cnt )			  // 出现杀棋时 进行剪枝
+		if( kill_cnt>=3 && kill_cnt + KILL_NUM < cnt )		// 出现杀棋时 进行剪枝
 		{
 			cnt = kill_cnt + KILL_NUM ;
 		}
