@@ -439,7 +439,6 @@ void AiThread::initMTable()
 	}
 
 	int five_scanner[5];
-
 	// 枚举five_scanner中出现的所有棋型，打表
 	RUSH3(five_scanner[0]) RUSH3(five_scanner[1]) RUSH3(five_scanner[2])
 	RUSH3(five_scanner[3]) RUSH3(five_scanner[4])
