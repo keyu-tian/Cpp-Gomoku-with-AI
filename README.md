@@ -11,7 +11,7 @@
 
 
 # 体验
-Windows环境下，下载./exe/gobang_by_Kevin.exe文件可直接体验，通过鼠标操作：
+将 headers文件夹、sources文件夹以及 gobang_by_Kevin.pro 三者放在同一目录下，使用Qt打开gobang_by_Kevin.pro，编译运行后即可体验，通过鼠标操作：
 - 落子：鼠标直接点击（待落子点有提示标记）
 - 与AI对弈时切换先后手并重新开始游戏：new 按钮
 - 重新开始游戏：restart 按钮
