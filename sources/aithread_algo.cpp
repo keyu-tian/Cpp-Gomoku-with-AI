@@ -2,7 +2,7 @@
 
 #define BASE_DEPTH 4
 #define KILL_DEPTH 11
-#define KILL_NUM   20	// 小于16会出问题！
+#define KILL_NUM   20
 
 #define swapChoice(x, y) do{Choice tp=x; x=y; y=tp;}while(0)
 
