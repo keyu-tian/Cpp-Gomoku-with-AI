@@ -146,7 +146,7 @@ void MainWindow::PVPRound()
 
 void MainWindow::PVEPutChess(const Grid &next_move, const Chessid id)
 {
-	if ( chess_board.isAvaliable(next_move) )
+	if (chess_board.isAvaliable(next_move))
 	{
 		chess_board.putChess(next_move.x, next_move.y, id);
 		ai_thread.putChess(next_move.x, next_move.y, id);
@@ -156,7 +156,7 @@ void MainWindow::PVEPutChess(const Grid &next_move, const Chessid id)
 
 void MainWindow::PVPPutChess(const Grid &next_move, const Chessid id)
 {
-	if ( chess_board.isAvaliable(next_move) )
+	if (chess_board.isAvaliable(next_move))
 	{
 		chess_board.putChess(next_move.x, next_move.y, id);
 		history[chess_cnt++] = next_move;
