@@ -519,10 +519,6 @@ void AiThread::initMTable()
 				INIT(i, HU_S2);
 		}
 	}
-
-
-
-
 }
 
 void AiThread::initCountTable()
