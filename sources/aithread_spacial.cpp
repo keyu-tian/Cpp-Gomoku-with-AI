@@ -44,17 +44,17 @@ void AiThread::secondRound()
 	}
 	if (found)	// 非妖刀
 	{
-		if ( BOARD_CTR==x )			// 直止，行花月
+		if ( BOARD_CTR==x )		// 花月
 		{
 			ai_next_move.x = x + 2*(rand()&1)-1;
 			ai_next_move.y = y;
 		}
-		else if ( BOARD_CTR==y )	// 直止，行花月
+		else if ( BOARD_CTR==y )	// 花月
 		{
 			ai_next_move.x = x;
 			ai_next_move.y = y + 2*(rand()&1)-1;
 		}
-		else	// 斜止，行浦月
+		else	// 浦月
 		{
 			if (rand()&1)
 			{
