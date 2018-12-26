@@ -23,6 +23,7 @@ class ChessBoard
 		Chessid getBlackPlayerID() const;
 		void setBlackPlayerID(Chessid id);
 
+		//  判断是否越界/是合法落子点/刚刚落子是否造成胜利
 		bool isInside(int r, int c) const;
 		bool isInside(const Grid &c) const;
 		bool isAvaliable(const Grid &c) const;
