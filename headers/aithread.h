@@ -17,6 +17,7 @@ class AiThread : public QThread
 		bool warned;
 		Grid ai_next_move;
 
+		// 用于QDebug输出刚刚的分数
 		int prev_score;
 
 		// 棋盘的备份（为了更快读写）
