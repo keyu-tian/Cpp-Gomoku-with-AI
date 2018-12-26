@@ -13,6 +13,7 @@
 class GamePainter : public QPainter
 {
 	public:
+
 		GamePainter(QPaintDevice *parent = Q_NULLPTR);
 		void init(void);
 		void drawGrid(void);
