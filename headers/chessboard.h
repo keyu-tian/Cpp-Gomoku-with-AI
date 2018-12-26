@@ -7,6 +7,7 @@ class ChessBoard
 {
 	private:
 
+		// 记录黑方和棋盘信息
 		Chessid black_player_id;
 		Chessid board[GRID_N][GRID_N];
 
