@@ -7,6 +7,7 @@
 class UIPushbutton : public QPushButton
 {
 	public:
+
 		UIPushbutton(QWidget *parent = Q_NULLPTR);
 		virtual void closeEvent(QEvent *event);
 		void test();
