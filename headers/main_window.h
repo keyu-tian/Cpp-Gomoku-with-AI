@@ -67,7 +67,7 @@ class MainWindow : public QMainWindow
 		void PVPPutChess(const Grid &next_move, const Chessid id);
 		void sweetWarning();
 
-		// 辅助UI的函数
+		// 寻找离鼠标最近的格点
 		void findNearistGrid(const Grid &near_grid, int x, int y);
 
 	protected:
