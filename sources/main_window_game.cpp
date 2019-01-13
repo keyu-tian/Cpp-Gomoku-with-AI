@@ -105,6 +105,7 @@ void MainWindow::PVERound()
 
 void MainWindow::aiMove(const Grid &ai_next_move)
 {
+	qDebug() << "AI move at" << ai_next_move.x << "," << ai_next_move.y;
 	this->PVEPutChess(ai_next_move, AI_CHESS);
 	this->update();
 	if (ai_thread.win())
@@ -114,7 +115,16 @@ void MainWindow::aiMove(const Grid &ai_next_move)
 		this->resetPVEGame();
 		this->startPVEGame();
 	}
-	else now_player_id = H1_CHESS;
+//	else
+//		now_player_id = H1_CHESS;
+	else
+	{
+		now_player_id = H1_CHESS;
+		int xx = -1, yy;
+		ai_thread.findP4(xx, yy, now_player_id);
+		if (xx != -1)
+			qDebug() << "found P4 at" << xx << "," << yy;
+	}
 }
 
 void MainWindow::PVPRound()
@@ -146,7 +156,7 @@ void MainWindow::PVPRound()
 
 void MainWindow::PVEPutChess(const Grid &next_move, const Chessid id)
 {
-	if (chess_board.isAvaliable(next_move))
+	if ( chess_board.isAvaliable(next_move) )
 	{
 		chess_board.putChess(next_move.x, next_move.y, id);
 		ai_thread.putChess(next_move.x, next_move.y, id);
@@ -156,7 +166,7 @@ void MainWindow::PVEPutChess(const Grid &next_move, const Chessid id)
 
 void MainWindow::PVPPutChess(const Grid &next_move, const Chessid id)
 {
-	if (chess_board.isAvaliable(next_move))
+	if ( chess_board.isAvaliable(next_move) )
 	{
 		chess_board.putChess(next_move.x, next_move.y, id);
 		history[chess_cnt++] = next_move;
