@@ -30,6 +30,8 @@ MainWindow::MainWindow(QWidget *parent)
 		this->resetPVPGame();
 		this->startPVPGame();
 	}
+
+//	qDebug() << "Inited. The size of MainWindow is : " << sizeof(*this);
 }
 
 MainWindow::~MainWindow()
