@@ -100,9 +100,10 @@ void MainWindow::findNearistGrid(const Grid &near_grid, int x, int y)
 		int now_dis = Distance(x, y, xi, yi);
 		if (DETECT_R >= now_dis && min_dis > now_dis)
 		{
-			mouse_cursor.x = near_grid.x + dx[i] - 1;	// -1 是因为 棋格坐标（0,0）-> 屏幕格点（1, 1）
-			mouse_cursor.y = near_grid.y + dy[i] - 1;	// -1 是因为 棋格坐标（0,0）-> 屏幕格点（1, 1）
+			mouse_cursor.x = near_grid.x + dx[i] - 1;
+			mouse_cursor.y = near_grid.y + dy[i] - 1;
 			min_dis = now_dis;
+			// 上面的-1 是因为 棋格坐标（0,0）-> 屏幕格点（1, 1）
 		}
 	}
 }
