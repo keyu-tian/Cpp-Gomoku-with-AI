@@ -21,7 +21,7 @@ void AiThread::run()
 {
 	srand(time(NULL));
 	int start_time = QTime::currentTime().msecsSinceStartOfDay();
-	qDebug() << "searching";
+	qDebug() << "\nsearching...";
 
 	int board_score = 0;
 	if (round == 0)
