@@ -2,8 +2,8 @@
 #define AITHREAD_H
 
 #include <QThread>
-#include "aithread_macro.h"
 #include "base.h"
+#include "aithread_macro.h"
 
 class AiThread : public QThread
 {
@@ -17,7 +17,6 @@ class AiThread : public QThread
 		bool warned;
 		Grid ai_next_move;
 
-		// 用于QDebug输出刚刚的分数
 		int prev_score;
 
 		// 棋盘的备份（为了更快读写）
@@ -78,6 +77,8 @@ class AiThread : public QThread
 		bool win();
 		bool lose();
 		void printChessType();
+
+		void findP4(int &x, int &y, const Chessid cur_player);
 
 	private:
 
