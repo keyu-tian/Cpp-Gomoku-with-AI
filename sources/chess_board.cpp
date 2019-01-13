@@ -34,7 +34,7 @@ Chessid ChessBoard::getBlackPlayerID() const
 bool ChessBoard::isInside(int r, int c) const
 {
 	return r>=0 && r<GRID_N &&
-	       c>=0 && c<GRID_N;
+		   c>=0 && c<GRID_N;
 }
 
 bool ChessBoard::isInside(const Grid &c) const
