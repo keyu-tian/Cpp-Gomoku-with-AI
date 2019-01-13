@@ -6,7 +6,7 @@
 
 
 // 棋型标志位（ F -- Flag ）
-#define F_0			0		// 空棋型
+#define F_0		0		// 空棋型
 #define F_AI_C5		0x1		// AI  连五
 #define F_HU_C5		0x2		// Man 连五
 #define F_AI_A4		0x4		// AI  活四
