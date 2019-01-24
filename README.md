@@ -11,6 +11,7 @@
 
 
 # 体验
+
 将 headers 文件夹下所有文件、sources 文件夹下所有文件以及 gobang_by_Kevin.pro 三部分放在同一目录下，使用Qt打开 gobang_by_Kevin.pro，编译运行后即可体验，通过鼠标操作：
 - 落子：鼠标直接点击（待落子点有提示标记）
 - 与AI对弈时切换先后手并重新开始游戏：new 按钮
