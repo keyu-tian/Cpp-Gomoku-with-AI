@@ -28,6 +28,8 @@ void MainWindow::resetPVEGame()
 	chess_cnt = 0;
 	mouse_cursor.x = mouse_cursor.y = INVALID_FLAG;
 
+	this->clearMarks();
+
 	chess_board.initBoard();
 	ai_thread.initBoard();
 	this->update();
@@ -65,6 +67,8 @@ void MainWindow::retractPVEGame()
 		this->resetPVEGame();
 		this->startPVEGame();
 	}
+
+	this->resetMarks();
 }
 
 void MainWindow::retractPVPGame()
@@ -91,7 +95,7 @@ void MainWindow::PVERound()
 	this->update();
 	if (ai_thread.lose())
 	{
-		qDebug() << "ai lose";
+		qDebug() << "AI lose";
 		QMessageBox::information(this, "  真香警告(｀・ω・´)  ", "   你居然打败了窝~ (=´ω｀=)   ");
 		this->resetPVEGame();
 		this->startPVEGame();
@@ -105,26 +109,30 @@ void MainWindow::PVERound()
 
 void MainWindow::aiMove(const Grid &ai_next_move)
 {
-	qDebug() << "AI move at" << ai_next_move.x << "," << ai_next_move.y;
 	this->PVEPutChess(ai_next_move, AI_CHESS);
+
 	this->update();
 	if (ai_thread.win())
 	{
-		qDebug() << "ai win";
+		qDebug() << "AI win";
 		QMessageBox::information(this, "  真香警告(｀・ω・´)  ", "   你已被本宝宝打败~ (*/ω＼*)  ");
 		this->resetPVEGame();
 		this->startPVEGame();
+
 	}
 //	else
 //		now_player_id = H1_CHESS;
 	else
 	{
 		now_player_id = H1_CHESS;
-		int xx = -1, yy;
-		ai_thread.findP4(xx, yy, now_player_id);
-		if (xx != -1)
-			qDebug() << "found P4 at" << xx << "," << yy;
+		this->resetMarks();
 	}
+}
+
+void MainWindow::aiPreMove(const Grid &ai_pre_move)
+{
+	this->ai_pre_move = ai_pre_move;
+	this->update();
 }
 
 void MainWindow::PVPRound()
