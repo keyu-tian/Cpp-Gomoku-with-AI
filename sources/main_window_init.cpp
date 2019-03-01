@@ -5,20 +5,20 @@
 
 #include <QApplication>
 #include <QPropertyAnimation>
+#include <QString>
 
 MainWindow::MainWindow(QWidget *parent)
 	: QMainWindow(parent),
 	  game_mode(PVE_MODE),
 	  black_player_id(AI_CHESS)
 {
-	qRegisterMetaType<Grid>("Grid");	// 注册后 Grid 类型才可以作为信号的参数
-
+	qRegisterMetaType<Grid>("Grid");  // register this Type, or it cannot be used as a parameter-type of a signal funcion.
 
 	this->initWindow();
 	this->initButton();
 	this->setConnections();
 
-	ai_thread.initHashTable();  // 这个 init，在整个程序运行过程中只需进行一次
+	ai_thread.initHashTable();  // this function will be called only once
 
 	if (game_mode == PVE_MODE)
 	{
@@ -31,7 +31,8 @@ MainWindow::MainWindow(QWidget *parent)
 		this->startPVPGame();
 	}
 
-//	qDebug() << "Inited. The size of MainWindow is : " << sizeof(*this);
+	qDebug() << "The size of MainWindow is : " << sizeof(*this);
+	ai_thread.algoDebuging();
 }
 
 MainWindow::~MainWindow()
@@ -89,6 +90,7 @@ void MainWindow::setConnections()
 {
 	// 设置AI搜索线程与UI线程间的信号通信
 	connect(&ai_thread, &AiThread::foundNextMove, this, &MainWindow::aiMove);
+	connect(&ai_thread, &AiThread::findingNextMove, this, &MainWindow::aiPreMove);
 	connect(&ai_thread, &AiThread::sweetWarning, this, &MainWindow::sweetWarning);
 
 	// 设置标题栏按钮的信号通信
