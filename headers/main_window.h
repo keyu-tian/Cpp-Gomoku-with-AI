@@ -36,12 +36,18 @@ class MainWindow : public QMainWindow
 		Grid mouse_cursor;
 
 		Grid history[GRID_N * GRID_N];
+		Grid ai_pre_move;
 		int chess_cnt;
 
 		AiThread ai_thread;
 
 		UIPushbutton ctrl_button[CTRL_BUTTON_N];
 		UIPushbutton title_button[TITLE_BUTTON_N];
+
+		int P4_key_pos_cnt;
+		int SA3_key_pos_cnt;
+		Choice P4_key_pos[GRID_N * GRID_N];
+		Choice A3_key_pos[GRID_N * GRID_N];
 
 	public:
 
@@ -63,21 +69,24 @@ class MainWindow : public QMainWindow
 		void PVERound();
 		void PVPRound();
 		void aiMove(const Grid &ai_next_move);
+		void aiPreMove(const Grid &ai_pre_move);
 		void PVEPutChess(const Grid &next_move, const Chessid id);
 		void PVPPutChess(const Grid &next_move, const Chessid id);
 		void sweetWarning();
 
-		// 寻找离鼠标最近的格点
+		// 辅助UI的函数
 		void findNearistGrid(const Grid &near_grid, int x, int y);
+		void resetMarks(void);
+		void clearMarks(void);
 
 	protected:
 
 		// UI相关
-		virtual void paintEvent(QPaintEvent *event);		// 绘图函数
+		virtual void paintEvent(QPaintEvent *event);
 		virtual void mouseMoveEvent(QMouseEvent *event);	// 监听鼠标，显示标记节点
 		virtual void mouseReleaseEvent(QMouseEvent *event);	// 玩家落子
 		virtual void mousePressEvent(QMouseEvent *event);	// 窗口移动
-		virtual void closeEvent(QCloseEvent* event);		// 窗口关闭
+		virtual void closeEvent(QCloseEvent* event);
 };
 
 #endif // MAINWINDOW_H
