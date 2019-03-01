@@ -5,18 +5,31 @@
 
 #define Distance(x0, y0, x1, y1) sqrt(((x0)-(x1))*((x0)-(x1))+((y0)-(y1))*((y0)-(y1)))
 
+
+// 注意绘图的顺序：网格点->关键位点->鼠标标记点->AI预落子点->棋子->上次落子点
 void MainWindow::paintEvent(QPaintEvent *event)
 {
 	GamePainter painter(this);
 	painter.init();
 	painter.drawGrid();
-	painter.drawChess(chess_board);
 
-	if (chess_cnt && chess_board.isInside(history[chess_cnt-1]))
-		painter.drawCross(history[chess_cnt-1], now_player_id == black_player_id);
+	for (int i=0; i<P4_key_pos_cnt; ++i)
+		painter.drawKeyPos(Grid(P4_key_pos[i].x, P4_key_pos[i].y), true);
+	for (int i=0; i<SA3_key_pos_cnt; ++i)
+		painter.drawKeyPos(Grid(A3_key_pos[i].x, A3_key_pos[i].y), false);
 
 	if (chess_board.isAvaliable(mouse_cursor) && now_player_id != AI_CHESS)
 		painter.drawMark(mouse_cursor, now_player_id == black_player_id);
+
+	if (chess_board.isAvaliable(ai_pre_move))
+		painter.drawAIPreMove(ai_pre_move);
+
+
+	painter.drawChess(chess_board);
+
+
+	if (chess_cnt && chess_board.isInside(history[chess_cnt-1]))
+		painter.drawLastMove(history[chess_cnt-1], now_player_id == black_player_id);
 }
 
 void MainWindow::mouseMoveEvent(QMouseEvent *event)
@@ -106,4 +119,21 @@ void MainWindow::findNearistGrid(const Grid &near_grid, int x, int y)
 			// 上面的-1 是因为 棋格坐标（0,0）-> 屏幕格点（1, 1）
 		}
 	}
+}
+
+void MainWindow::resetMarks()
+{
+	ai_pre_move.x = ai_pre_move.y = INVALID_FLAG;
+
+	P4_key_pos_cnt = ai_thread.findEnemyP4(P4_key_pos, AI_CHESS);
+	P4_key_pos_cnt += ai_thread.findEnemyP4(P4_key_pos+P4_key_pos_cnt, H1_CHESS);
+
+//	SA3_key_pos_cnt = ai_thread.findAllS3A3(A3_key_pos, AI_CHESS);
+//	SA3_key_pos_cnt += ai_thread.findAllS3A3(A3_key_pos+SA3_key_pos_cnt, H1_CHESS);
+}
+
+void MainWindow::clearMarks()
+{
+	ai_pre_move.x = ai_pre_move.y = INVALID_FLAG;
+	SA3_key_pos_cnt = P4_key_pos_cnt = 0;
 }
