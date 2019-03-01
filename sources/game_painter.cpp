@@ -6,7 +6,6 @@ enum BW
 	BLACK1 = 58,
 	BLACK2 = 64,
 	WHITE1 = 238,//239
-	WHITE2 = 244
 };
 
 GamePainter::GamePainter(QPaintDevice *parent)
@@ -31,34 +30,64 @@ void GamePainter::drawGrid()
 	this->drawRect(BOARD_L-7, BOARD_L-7, BOARD_W+14, BOARD_W+14);
 }
 
-void GamePainter::drawMark(const Grid &c, bool is_black)
+void GamePainter::drawKeyPos(const Grid &c, bool is_P4)
 {
+	QPen prev_pen = this->pen();
 	QRadialGradient radi;
-	if (is_black)
-		radi.setColorAt(0,qRgb(BLACK1, BLACK1, BLACK1));
-	else
-		radi.setColorAt(0,qRgb(WHITE1, WHITE1, WHITE1));
 
+	radi.setColorAt(0, qRgb(WHITE1, WHITE1, WHITE1));
 	this->setBrush(radi);
-	this->setPen(Qt::black);
+
+	if (is_P4)
+		this->setPen(qRgb(255, 100, 110));
+	else
+		this->setPen(qRgb(13, 144, 233));
+
 	this->drawRect(BOARD_L + GRID_W * c.x + GRID_W - MARK_R,
 			 BOARD_L + GRID_W * c.y + GRID_W - MARK_R,
 			 2 * MARK_R, 2 * MARK_R);
 	// 以上 +GRID_W 是因为 棋格坐标（0, 0） <=> 屏幕坐标（GRID_W, GRID_W）
+
+	this->setPen(prev_pen);
 }
 
-void GamePainter::drawCross(const Grid &c, bool is_black)
+void GamePainter::drawMark(const Grid &c, bool is_black)
 {
+	QPen prev_pen = this->pen();
 	QRadialGradient radi;
+
 	if (is_black)
-		radi.setColorAt(0,qRgb(BLACK1, BLACK1, BLACK1));
+		radi.setColorAt(0, qRgb(BLACK1, BLACK1, BLACK1));
 	else
-		radi.setColorAt(0,qRgb(WHITE1, WHITE1, WHITE1));
+		radi.setColorAt(0, qRgb(WHITE1, WHITE1, WHITE1));
 
 	this->setBrush(radi);
-	this->drawEllipse(BOARD_L + GRID_W * c.x + GRID_W - MARK_R,
+	this->setPen(qRgb(BLACK1, BLACK1, BLACK1));
+	this->drawRect(BOARD_L + GRID_W * c.x + GRID_W - MARK_R,
 			 BOARD_L + GRID_W * c.y + GRID_W - MARK_R,
 			 2 * MARK_R, 2 * MARK_R);
+	// 以上 +GRID_W 是因为 棋格坐标（0, 0） <=> 屏幕坐标（GRID_W, GRID_W）
+
+	this->setPen(prev_pen);
+}
+
+void GamePainter::drawAIPreMove(const Grid &c)
+{
+	QPen prev_pen = this->pen();
+	QRadialGradient radi;
+	radi.setColorAt(0, qRgb(WHITE1, WHITE1, WHITE1));
+
+	QPen pen;
+	pen.setColor(qRgb(100, 160, 50));
+	pen.setWidth(2);
+	pen.setStyle(Qt::DotLine);
+
+	this->setPen(pen);
+	this->setBrush(radi);
+	this->drawEllipse(BOARD_L + GRID_W * (c.x+1) - CHESS_R, BOARD_L + GRID_W * (c.y+1) - CHESS_R, CHESS_R * 2, CHESS_R * 2);
+	// 以上 +GRID_W 是因为 棋格坐标（0, 0） <=> 屏幕坐标（GRID_W, GRID_W）
+
+	this->setPen(prev_pen);
 }
 
 void GamePainter::drawChess(const ChessBoard &c)
@@ -101,5 +130,30 @@ void GamePainter::drawChess(const ChessBoard &c)
 			}
 		}
 	}
+}
+
+void GamePainter::drawLastMove(const Grid &c, bool is_black)
+{
+	QPen prev_pen = this->pen();
+	QRadialGradient radi;
+
+	if (is_black)
+	{
+		radi.setColorAt(0, qRgb(BLACK1, BLACK1, BLACK1));
+		this->setPen(qRgb(BLACK1, BLACK1, BLACK1));
+	}
+	else
+	{
+		radi.setColorAt(0, qRgb(WHITE1, WHITE1, WHITE1));
+//		this->setPen(qRgb(WHITE1, WHITE1, WHITE1));  // setPen后，显示的白色最近落子提示点就太大了
+	}
+
+	this->setBrush(radi);
+	this->drawEllipse(BOARD_L + GRID_W * c.x + GRID_W - MARK_R,
+			 BOARD_L + GRID_W * c.y + GRID_W - MARK_R,
+			 2 * MARK_R, 2 * MARK_R);
+	// 以上 +GRID_W 是因为 棋格坐标（0, 0） <=> 屏幕坐标（GRID_W, GRID_W）
+
+	this->setPen(prev_pen);
 }
 
