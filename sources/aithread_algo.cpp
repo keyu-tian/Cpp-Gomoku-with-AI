@@ -1,22 +1,19 @@
 #include "aithread.h"
 
-#define BASE_DEPTH	4
-#define KILL_DEPTH	8
-#define RES_DEPTH	6
-#define KILL_NUM	16	// 小于16会出问题！
+#define BASE_DEPTH	6
+#define KILL_DEPTH	11
+#define RES_DEPTH	5
 #define NEAR_CNT	2
 
 #define __OPEN_EP4	// 敌方冲四优化（在必胜判断函数之后，如果没有立即返回说明不存在必胜。此时如果对方有P4则必只有一个P4，并且我方必须防守。因为我方没有4。）
 #define __OPEN_SA3	// 眠活三优化（当对方没有P4而有活三时，我方只能走：①对方活三的前二防守点 ②我方眠三进攻点 ③对方活三的第三防守点）
-
-// 可能存在的必杀：执黑，按顺序落子：(10,11)(10,10)(9,10)(9,9)(8,9)
 
 #define swapChoice(x, y) do{Choice tp=x; x=y; y=tp;}while(0)
 
 
 int AiThread::minMaxSearch(const Chessid cur_player, const int depth, int alpha, int beta)
 {
-	if ( depth )					// depth必须>0，否则无法获取必杀点的坐标就返回了
+	if ( depth )				// depth必须>0，否则无法获取必杀点的坐标就返回了
 	{
 		int killed_score = evalKilledScore(cur_player, depth);
 		if (killed_score)
@@ -46,11 +43,11 @@ int AiThread::minMaxSearch(const Chessid cur_player, const int depth, int alpha,
 
 			putChess(x, y, AI_CHESS);	// 扩展子节点
 			score = minMaxSearch(H1_CHESS, depth+1, alpha, beta); // 递归进行极大极小搜索
-			takeChess(x, y);			// 回溯
+			takeChess(x, y);		// 回溯
 
-			if (score > alpha)			// 对于AI，更新极大值
+			if (score > alpha)		// 对于AI，更新极大值
 			{
-				if (!depth)				// 在第0层进行搜索时，还需同时更新最优选择的坐标
+				if (!depth)		// 在第0层进行搜索时，还需同时更新最优选择的坐标
 				{
 					ai_next_move.x = x;
 					ai_next_move.y = y;
@@ -64,12 +61,12 @@ int AiThread::minMaxSearch(const Chessid cur_player, const int depth, int alpha,
 				return alpha;
 			}
 
-			if (depth && alpha >= C5score)		// 必胜剪枝
+			if (depth && alpha >= C5score)	// 必胜剪枝
 				return alpha;
 
 			++p_now;
 		}
-		return alpha;					// AI从所有落子情况中选择分数最高值
+		return alpha;				// AI从所有落子情况中选择分数最高值
 	}
 	else // if ( cur_player == H1_CHESS )
 	{
@@ -80,9 +77,9 @@ int AiThread::minMaxSearch(const Chessid cur_player, const int depth, int alpha,
 
 			putChess(x, y, H1_CHESS);	// 扩展子节点
 			score = minMaxSearch(AI_CHESS, depth+1, alpha, beta); // 递归进行极大极小搜索
-			takeChess(x, y);			// 回溯
+			takeChess(x, y);		// 回溯
 
-			if (score < beta)			// 对于玩家，更新极小值
+			if (score < beta)		// 对于玩家，更新极小值
 			{
 				beta = score;
 			}
@@ -96,7 +93,7 @@ int AiThread::minMaxSearch(const Chessid cur_player, const int depth, int alpha,
 
 			++p_now;
 		}
-		return beta;					// 玩家从所有落子情况中选择分数最低值
+		return beta;				// 玩家从所有落子情况中选择分数最低值
 	}
 }
 
@@ -122,7 +119,7 @@ int AiThread::killSearch(const Chessid cur_player, const int depth, int alpha, i
 
 	Choice choices_buffer[GRID_N*GRID_N];
 	buffer_cnt = getKillSearchChoices(choices_buffer, cur_player);
-	if (!buffer_cnt)					// 找不到杀棋，终止算杀搜索，返回局面估值
+	if (!buffer_cnt)				// 找不到杀棋，终止算杀搜索，返回局面估值
 	{
 		return evalBoard();
 	}
@@ -140,9 +137,9 @@ int AiThread::killSearch(const Chessid cur_player, const int depth, int alpha, i
 
 			putChess(x, y, AI_CHESS);	// 扩展子节点
 			score = killSearch(H1_CHESS, depth+1, alpha, beta); // 递归进行算杀搜索
-			takeChess(x, y);			// 回溯
+			takeChess(x, y);		// 回溯
 
-			if (score > alpha)			// 对于AI，更新极大值
+			if (score > alpha)		// 对于AI，更新极大值
 			{
 				alpha = score;
 			}
@@ -154,7 +151,7 @@ int AiThread::killSearch(const Chessid cur_player, const int depth, int alpha, i
 				return alpha;
 			++p_now;
 		}
-		return alpha;					// AI从所有落子情况中选择分数最高值
+		return alpha;				// AI从所有落子情况中选择分数最高值
 	}
 	else // if ( cur_player == H1_CHESS )
 	{
@@ -165,9 +162,9 @@ int AiThread::killSearch(const Chessid cur_player, const int depth, int alpha, i
 
 			putChess(x, y, H1_CHESS);	// 扩展子节点
 			score = killSearch(AI_CHESS, depth+1, alpha, beta); // 递归进行算杀搜索
-			takeChess(x, y);			// 回溯
+			takeChess(x, y);		// 回溯
 
-			if (score < beta)			// 对于玩家，更新极小值
+			if (score < beta)		// 对于玩家，更新极小值
 			{
 				beta = score ;
 			}
@@ -179,7 +176,7 @@ int AiThread::killSearch(const Chessid cur_player, const int depth, int alpha, i
 				return beta;
 			++p_now;
 		}
-		return beta;					// 玩家从所有落子情况中选择分数最低值
+		return beta;				// 玩家从所有落子情况中选择分数最低值
 	}
 }
 
@@ -203,7 +200,7 @@ int AiThread::resSearch(const Chessid cur_player, const int depth, int alpha, in
 	buffer_cnt = this->findEnemyP4(choices_buffer, cur_player);
 	if (!buffer_cnt)
 		buffer_cnt = this->findS3A3(choices_buffer, cur_player);
-	if (!buffer_cnt)					// 找不到杀棋，终止算杀搜索，返回局面估值
+	if (!buffer_cnt)				// 找不到杀棋，终止算杀搜索，返回局面估值
 	{
 		return evalBoard();
 	}
@@ -221,9 +218,9 @@ int AiThread::resSearch(const Chessid cur_player, const int depth, int alpha, in
 
 			putChess(x, y, AI_CHESS);	// 扩展子节点
 			score = resSearch(H1_CHESS, depth+1, alpha, beta); // 递归进行算杀搜索
-			takeChess(x, y);			// 回溯
+			takeChess(x, y);		// 回溯
 
-			if (score > alpha)			// 对于AI，更新极大值
+			if (score > alpha)		// 对于AI，更新极大值
 			{
 				alpha = score;
 			}
@@ -235,7 +232,7 @@ int AiThread::resSearch(const Chessid cur_player, const int depth, int alpha, in
 				return alpha;
 			++p_now;
 		}
-		return alpha;					// AI从所有落子情况中选择分数最高值
+		return alpha;				// AI从所有落子情况中选择分数最高值
 	}
 	else // if ( cur_player == H1_CHESS )
 	{
@@ -246,9 +243,9 @@ int AiThread::resSearch(const Chessid cur_player, const int depth, int alpha, in
 
 			putChess(x, y, H1_CHESS);	// 扩展子节点
 			score = resSearch(AI_CHESS, depth+1, alpha, beta); // 递归进行算杀搜索
-			takeChess(x, y);			// 回溯
+			takeChess(x, y);		// 回溯
 
-			if (score < beta)			// 对于玩家，更新极小值
+			if (score < beta)		// 对于玩家，更新极小值
 			{
 				beta = score ;
 			}
@@ -260,7 +257,7 @@ int AiThread::resSearch(const Chessid cur_player, const int depth, int alpha, in
 				return beta;
 			++p_now;
 		}
-		return beta;					// 玩家从所有落子情况中选择分数最低值
+		return beta;				// 玩家从所有落子情况中选择分数最低值
 	}
 }
 
@@ -944,7 +941,6 @@ int AiThread::findAllS3A3(Choice *choices_buffer, const Chessid cur_player) cons
 {
 	if (cur_player == AI_CHESS)
 	{
-		int all_cnt = all_type[I_HU_A3] + all_type[I_AI_S3];
 		int hu_a3_cnt = 0, ai_s3_cnt = 0;
 		Choice hu_a3_pos[GRID_N * 3][3], ai_s3_pos[GRID_N * 3][2];
 
@@ -1175,7 +1171,6 @@ int AiThread::findAllS3A3(Choice *choices_buffer, const Chessid cur_player) cons
 
 	else if (cur_player == H1_CHESS)
 	{
-		int all_cnt = all_type[I_AI_A3] + all_type[I_HU_S3];
 		int ai_a3_cnt = 0, hu_s3_cnt = 0;
 		Choice ai_a3_pos[GRID_N * 3][3], hu_s3_pos[GRID_N * 3][2];
 
@@ -1426,7 +1421,7 @@ int AiThread::getMinMaxSearchChoices(Choice *choices_buffer, Chessid cur_player)
 		return s3a3_cnt;
 #endif
 
-	int r, c, i, j, cnt, kill_cnt;
+	int r, c, i, j, cnt;
 	bool not_found;
 	int near_cnt;
 
@@ -1463,17 +1458,17 @@ int AiThread::getMinMaxSearchChoices(Choice *choices_buffer, Chessid cur_player)
 
 	myQuickSort(choices_buffer, cnt);
 
-	for (r=kill_cnt=0; r<cnt; r++)
-	{
-		if (choices_buffer[r].prior >= KILL_PRIOR)
-			++kill_cnt;
-		else break;
-	}
+//	for (r=kill_cnt=0; r<cnt; r++)
+//	{
+//		if (choices_buffer[r].prior >= KILL_PRIOR)
+//			++kill_cnt;
+//		else break;
+//	}
 
-	if( kill_cnt>=3 && kill_cnt + KILL_NUM < cnt )			  // 出现杀棋时 进行剪枝
-	{
-		cnt = kill_cnt + KILL_NUM ;
-	}
+//	if( kill_cnt>=3 && kill_cnt + KILL_NUM < cnt )			  // 出现杀棋时 进行剪枝
+//	{
+//		cnt = kill_cnt + KILL_NUM ;
+//	}
 
 	return cnt;
 }
@@ -1582,19 +1577,25 @@ void AiThread::myQuickSort(Choice *a, int n) const
 void AiThread::algoDebuging() const
 {
 	qDebug("Dep: %d %d %d", BASE_DEPTH, KILL_DEPTH, RES_DEPTH);
-	qDebug("KN : %d", KILL_NUM);
+//	qDebug("KN : %d", KILL_NUM);
 	qDebug("NC : %d", NEAR_CNT);
 
 #ifdef __OPEN_EP4
 	qDebug("OPEN EP4");
+#else
+	qDebug("CLOSE EP4");
 #endif
 
 #ifdef __OPEN_SA3
 	qDebug("OPEN SA3");
+#else
+	qDebug("CLOSE SA3");
 #endif
 
 #if RES_DEPTH > KILL_DEPTH
 	qDebug("OPEN Res");
+#else
+	qDebug("CLOSE Res");
 #endif
 
 }
