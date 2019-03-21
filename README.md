@@ -10,7 +10,7 @@
 
 目前还谈不上严格的 AI。下一步会用 ResNet+RL+MCTS（部分参考Alpha Zero）来做一个真正意义上的棋类AI（用PyTorch或者自搭网络）。
 
-
+<br>
 
 # 体验
 
