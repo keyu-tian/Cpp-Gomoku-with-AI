@@ -1,6 +1,6 @@
 #-------------------------------------------------
 #
-# Project created by QtCreator 2018-08-10T02:03:04
+# Project created by QtCreator 2018-08-10T09:03:04
 #
 #-------------------------------------------------
 
@@ -35,7 +35,8 @@ SOURCES += \
     main_window_ui.cpp \
     aithread_special.cpp \
     game_painter.cpp \
-    ui_pushbutton.cpp
+    ui_pushbutton.cpp \
+    aithread_init.cpp
 
 HEADERS += \
     base.h \
@@ -47,7 +48,5 @@ HEADERS += \
     game_painter.h \
     ui_pushbutton.h \
     ui_style.h
-
-QMAKE_CXXFLAGS +=  -Wno-unused-parameter
 
 CONFIG += C++11
