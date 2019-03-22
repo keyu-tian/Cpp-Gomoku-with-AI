@@ -24,7 +24,7 @@
 - 切换人机对弈模式与人人对弈模式：change 按钮
 
 - 难度：可在 aithread_algo.cpp 最上方更改搜索深度
-- BASE_DEPTH 基础深度 2-6、KILL_DEPTH 浅层算杀深度 8-14、RES_DEPTH 深层算杀深度 12-18
+- BASE_DEPTH 基础深度 4-6、KILL_DEPTH 浅层算杀深度 8-14、RES_DEPTH 深层算杀深度 12-18
 - （后续更新会增设配置设置界面）
 
 （出现真香警告时，说明 AI 搜到了某一方的必胜情况~）
