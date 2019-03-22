@@ -1,8 +1,8 @@
 #include "aithread.h"
 
-#define BASE_DEPTH	6
-#define KILL_DEPTH	11
-#define RES_DEPTH	5
+#define BASE_DEPTH	4
+#define KILL_DEPTH	10
+#define RES_DEPTH	14
 #define NEAR_CNT	2
 
 #define __OPEN_EP4	// 敌方冲四优化（在必胜判断函数之后，如果没有立即返回说明不存在必胜。此时如果对方有P4则必只有一个P4，并且我方必须防守。因为我方没有4。）
