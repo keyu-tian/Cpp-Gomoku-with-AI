@@ -13,7 +13,7 @@
 
 int AiThread::minMaxSearch(const Chessid cur_player, const int depth, int alpha, int beta)
 {
-	if ( depth )				// depth必须>0，否则无法获取必杀点的坐标就返回了
+	if ( depth )					// depth必须>0，否则无法获取必杀点的坐标就返回了
 	{
 		int killed_score = evalKilledScore(cur_player, depth);
 		if (killed_score)
@@ -43,11 +43,11 @@ int AiThread::minMaxSearch(const Chessid cur_player, const int depth, int alpha,
 
 			putChess(x, y, AI_CHESS);	// 扩展子节点
 			score = minMaxSearch(H1_CHESS, depth+1, alpha, beta); // 递归进行极大极小搜索
-			takeChess(x, y);		// 回溯
+			takeChess(x, y);			// 回溯
 
-			if (score > alpha)		// 对于AI，更新极大值
+			if (score > alpha)			// 对于AI，更新极大值
 			{
-				if (!depth)		// 在第0层进行搜索时，还需同时更新最优选择的坐标
+				if (!depth)				// 在第0层进行搜索时，还需同时更新最优选择的坐标
 				{
 					ai_next_move.x = x;
 					ai_next_move.y = y;
@@ -61,12 +61,12 @@ int AiThread::minMaxSearch(const Chessid cur_player, const int depth, int alpha,
 				return alpha;
 			}
 
-			if (depth && alpha >= C5score)	// 必胜剪枝
+			if (depth && alpha >= C5score)		// 必胜剪枝
 				return alpha;
 
 			++p_now;
 		}
-		return alpha;				// AI从所有落子情况中选择分数最高值
+		return alpha;					// AI从所有落子情况中选择分数最高值
 	}
 	else // if ( cur_player == H1_CHESS )
 	{
@@ -77,9 +77,9 @@ int AiThread::minMaxSearch(const Chessid cur_player, const int depth, int alpha,
 
 			putChess(x, y, H1_CHESS);	// 扩展子节点
 			score = minMaxSearch(AI_CHESS, depth+1, alpha, beta); // 递归进行极大极小搜索
-			takeChess(x, y);		// 回溯
+			takeChess(x, y);			// 回溯
 
-			if (score < beta)		// 对于玩家，更新极小值
+			if (score < beta)			// 对于玩家，更新极小值
 			{
 				beta = score;
 			}
@@ -93,7 +93,7 @@ int AiThread::minMaxSearch(const Chessid cur_player, const int depth, int alpha,
 
 			++p_now;
 		}
-		return beta;				// 玩家从所有落子情况中选择分数最低值
+		return beta;					// 玩家从所有落子情况中选择分数最低值
 	}
 }
 
@@ -119,7 +119,7 @@ int AiThread::killSearch(const Chessid cur_player, const int depth, int alpha, i
 
 	Choice choices_buffer[GRID_N*GRID_N];
 	buffer_cnt = getKillSearchChoices(choices_buffer, cur_player);
-	if (!buffer_cnt)				// 找不到杀棋，终止算杀搜索，返回局面估值
+	if (!buffer_cnt)					// 找不到杀棋，终止算杀搜索，返回局面估值
 	{
 		return evalBoard();
 	}
@@ -137,9 +137,9 @@ int AiThread::killSearch(const Chessid cur_player, const int depth, int alpha, i
 
 			putChess(x, y, AI_CHESS);	// 扩展子节点
 			score = killSearch(H1_CHESS, depth+1, alpha, beta); // 递归进行算杀搜索
-			takeChess(x, y);		// 回溯
+			takeChess(x, y);			// 回溯
 
-			if (score > alpha)		// 对于AI，更新极大值
+			if (score > alpha)			// 对于AI，更新极大值
 			{
 				alpha = score;
 			}
@@ -151,7 +151,7 @@ int AiThread::killSearch(const Chessid cur_player, const int depth, int alpha, i
 				return alpha;
 			++p_now;
 		}
-		return alpha;				// AI从所有落子情况中选择分数最高值
+		return alpha;					// AI从所有落子情况中选择分数最高值
 	}
 	else // if ( cur_player == H1_CHESS )
 	{
@@ -162,9 +162,9 @@ int AiThread::killSearch(const Chessid cur_player, const int depth, int alpha, i
 
 			putChess(x, y, H1_CHESS);	// 扩展子节点
 			score = killSearch(AI_CHESS, depth+1, alpha, beta); // 递归进行算杀搜索
-			takeChess(x, y);		// 回溯
+			takeChess(x, y);			// 回溯
 
-			if (score < beta)		// 对于玩家，更新极小值
+			if (score < beta)			// 对于玩家，更新极小值
 			{
 				beta = score ;
 			}
@@ -176,7 +176,7 @@ int AiThread::killSearch(const Chessid cur_player, const int depth, int alpha, i
 				return beta;
 			++p_now;
 		}
-		return beta;				// 玩家从所有落子情况中选择分数最低值
+		return beta;					// 玩家从所有落子情况中选择分数最低值
 	}
 }
 
@@ -200,7 +200,7 @@ int AiThread::resSearch(const Chessid cur_player, const int depth, int alpha, in
 	buffer_cnt = this->findEnemyP4(choices_buffer, cur_player);
 	if (!buffer_cnt)
 		buffer_cnt = this->findS3A3(choices_buffer, cur_player);
-	if (!buffer_cnt)				// 找不到杀棋，终止算杀搜索，返回局面估值
+	if (!buffer_cnt)					// 找不到杀棋，终止算杀搜索，返回局面估值
 	{
 		return evalBoard();
 	}
@@ -218,9 +218,9 @@ int AiThread::resSearch(const Chessid cur_player, const int depth, int alpha, in
 
 			putChess(x, y, AI_CHESS);	// 扩展子节点
 			score = resSearch(H1_CHESS, depth+1, alpha, beta); // 递归进行算杀搜索
-			takeChess(x, y);		// 回溯
+			takeChess(x, y);			// 回溯
 
-			if (score > alpha)		// 对于AI，更新极大值
+			if (score > alpha)			// 对于AI，更新极大值
 			{
 				alpha = score;
 			}
@@ -232,7 +232,7 @@ int AiThread::resSearch(const Chessid cur_player, const int depth, int alpha, in
 				return alpha;
 			++p_now;
 		}
-		return alpha;				// AI从所有落子情况中选择分数最高值
+		return alpha;					// AI从所有落子情况中选择分数最高值
 	}
 	else // if ( cur_player == H1_CHESS )
 	{
@@ -243,9 +243,9 @@ int AiThread::resSearch(const Chessid cur_player, const int depth, int alpha, in
 
 			putChess(x, y, H1_CHESS);	// 扩展子节点
 			score = resSearch(AI_CHESS, depth+1, alpha, beta); // 递归进行算杀搜索
-			takeChess(x, y);		// 回溯
+			takeChess(x, y);			// 回溯
 
-			if (score < beta)		// 对于玩家，更新极小值
+			if (score < beta)			// 对于玩家，更新极小值
 			{
 				beta = score ;
 			}
@@ -257,9 +257,10 @@ int AiThread::resSearch(const Chessid cur_player, const int depth, int alpha, in
 				return beta;
 			++p_now;
 		}
-		return beta;				// 玩家从所有落子情况中选择分数最低值
+		return beta;					// 玩家从所有落子情况中选择分数最低值
 	}
 }
+
 
 
 int AiThread::findEnemyP4(Choice *choices_buffer, const Chessid cur_player) const
@@ -426,7 +427,6 @@ int AiThread::findEnemyP4(Choice *choices_buffer, const Chessid cur_player) cons
 			}
 		}
 	}
-
 	return 0;
 }
 
@@ -932,480 +932,7 @@ exit_aia3_hus3:
 
 	else
 		return 0;
-
-	qDebug() << "??????????";
-	return 0;
 }
-
-int AiThread::findAllS3A3(Choice *choices_buffer, const Chessid cur_player) const
-{
-	if (cur_player == AI_CHESS)
-	{
-		int hu_a3_cnt = 0, ai_s3_cnt = 0;
-		Choice hu_a3_pos[GRID_N * 3][3], ai_s3_pos[GRID_N * 3][2];
-
-		for (int c=0; c<GRID_N; ++c)
-		{
-			if (col_type[c] & F_HU_A3)  // 在第c列发现了活三
-			{
-				for (__int32 temp_col_chess = col_chess[c], i=0; i<10; ++i, temp_col_chess>>=2)
-				{
-					if (M_TABLE[MASK & temp_col_chess] == F_HU_A3)  // 第i次扫描发现了活三
-					{
-						hu_a3_pos[hu_a3_cnt][0].x = c;
-						hu_a3_pos[hu_a3_cnt][0].y = i + A3_KEY_POS_TABLE[MASK & temp_col_chess][0];
-						hu_a3_pos[hu_a3_cnt][1].x = c;
-						hu_a3_pos[hu_a3_cnt][1].y = i + A3_KEY_POS_TABLE[MASK & temp_col_chess][1];
-						hu_a3_pos[hu_a3_cnt][2].x = c;
-						hu_a3_pos[hu_a3_cnt][2].y = i + A3_KEY_POS_TABLE[MASK & temp_col_chess][2];
-						++hu_a3_cnt;
-						break;
-					}
-				}
-			}
-		}
-		for (int r=0; r<GRID_N; ++r)
-		{
-			if (row_type[r] & F_HU_A3)  // 在第r行找到了活三
-			{
-				for (__int32 temp_row_chess = row_chess[r], i=0; i<10; ++i, temp_row_chess>>=2)
-				{
-					if (M_TABLE[MASK & temp_row_chess] == F_HU_A3)  // 第i次扫描发现了活三
-					{
-						hu_a3_pos[hu_a3_cnt][0].x = i + A3_KEY_POS_TABLE[MASK & temp_row_chess][0];
-						hu_a3_pos[hu_a3_cnt][0].y = r;
-						hu_a3_pos[hu_a3_cnt][1].x = i + A3_KEY_POS_TABLE[MASK & temp_row_chess][1];
-						hu_a3_pos[hu_a3_cnt][1].y = r;
-						hu_a3_pos[hu_a3_cnt][2].x = i + A3_KEY_POS_TABLE[MASK & temp_row_chess][2];
-						hu_a3_pos[hu_a3_cnt][2].y = r;
-						++hu_a3_cnt;
-						break;
-					}
-				}
-			}
-		}
-		for (int l=0; l<GRID_DN; ++l) // l + y = x + 10
-		{
-			if (left_type[l] & F_HU_A3)
-			{
-				for (__int32 temp_left_chess = left_chess[l], i=0, count=getLeftCount(l); i<count; ++i, temp_left_chess>>=2)
-				{
-					if (M_TABLE[MASK & temp_left_chess] == F_HU_A3)
-					{
-						if (l <= 10)
-						{
-							hu_a3_pos[hu_a3_cnt][0].x = i + A3_KEY_POS_TABLE[MASK & temp_left_chess][0];
-							hu_a3_pos[hu_a3_cnt][0].y = 10 - l + hu_a3_pos[hu_a3_cnt][0].x;
-							hu_a3_pos[hu_a3_cnt][1].x = i + A3_KEY_POS_TABLE[MASK & temp_left_chess][1];
-							hu_a3_pos[hu_a3_cnt][1].y = 10 - l + hu_a3_pos[hu_a3_cnt][1].x;
-							hu_a3_pos[hu_a3_cnt][2].x = i + A3_KEY_POS_TABLE[MASK & temp_left_chess][2];
-							hu_a3_pos[hu_a3_cnt][2].y = 10 - l + hu_a3_pos[hu_a3_cnt][2].x;
-						}
-						else
-						{
-							hu_a3_pos[hu_a3_cnt][0].y = i + A3_KEY_POS_TABLE[MASK & temp_left_chess][0];
-							hu_a3_pos[hu_a3_cnt][0].x = l - 10 + hu_a3_pos[hu_a3_cnt][0].y;
-							hu_a3_pos[hu_a3_cnt][1].y = i + A3_KEY_POS_TABLE[MASK & temp_left_chess][1];
-							hu_a3_pos[hu_a3_cnt][1].x = l - 10 + hu_a3_pos[hu_a3_cnt][1].y;
-							hu_a3_pos[hu_a3_cnt][2].y = i + A3_KEY_POS_TABLE[MASK & temp_left_chess][2];
-							hu_a3_pos[hu_a3_cnt][2].x = l - 10 + hu_a3_pos[hu_a3_cnt][2].y;
-						}
-
-						++hu_a3_cnt;
-						break;
-					}
-				}
-			}
-		}
-		for (int r=0; r<GRID_DN; ++r) // r + 4 = x + y
-		{
-			if (right_type[r] & F_HU_A3)
-			{
-				for (__int32 temp_right_chess = right_chess[r], i=0, count=getRightCount(r); i<count; ++i, temp_right_chess>>=2)
-				{
-					if (M_TABLE[MASK & temp_right_chess] == F_HU_A3)
-					{
-						if (r <= 10)
-						{
-							hu_a3_pos[hu_a3_cnt][0].y = i + A3_KEY_POS_TABLE[MASK & temp_right_chess][0];
-							hu_a3_pos[hu_a3_cnt][0].x = r + 4 - hu_a3_pos[hu_a3_cnt][0].y;
-							hu_a3_pos[hu_a3_cnt][1].y = i + A3_KEY_POS_TABLE[MASK & temp_right_chess][1];
-							hu_a3_pos[hu_a3_cnt][1].x = r + 4 - hu_a3_pos[hu_a3_cnt][1].y;
-							hu_a3_pos[hu_a3_cnt][2].y = i + A3_KEY_POS_TABLE[MASK & temp_right_chess][2];
-							hu_a3_pos[hu_a3_cnt][2].x = r + 4 - hu_a3_pos[hu_a3_cnt][2].y;
-						}
-						else
-						{
-							hu_a3_pos[hu_a3_cnt][0].x = 14 - i - A3_KEY_POS_TABLE[MASK & temp_right_chess][0];
-							hu_a3_pos[hu_a3_cnt][0].y = r + 4 - hu_a3_pos[hu_a3_cnt][0].x;
-							hu_a3_pos[hu_a3_cnt][1].x = 14 - i - A3_KEY_POS_TABLE[MASK & temp_right_chess][1];
-							hu_a3_pos[hu_a3_cnt][1].y = r + 4 - hu_a3_pos[hu_a3_cnt][1].x;
-							hu_a3_pos[hu_a3_cnt][2].x = 14 - i - A3_KEY_POS_TABLE[MASK & temp_right_chess][2];
-							hu_a3_pos[hu_a3_cnt][2].y = r + 4 - hu_a3_pos[hu_a3_cnt][2].x;
-						}
-
-						++hu_a3_cnt;
-						break;
-					}
-				}
-			}
-		}
-
-
-		for (int c=0; c<GRID_N; ++c)
-		{
-			if (col_type[c] & F_AI_S3)  // 在第c列发现了活三
-			{
-				for (__int32 temp_col_chess = col_chess[c], i=0; i<10; ++i, temp_col_chess>>=2)
-				{
-					if (M_TABLE[MASK & temp_col_chess] == F_AI_S3)  // 第i次扫描发现了活三
-					{
-						ai_s3_pos[ai_s3_cnt][0].x = c;
-						ai_s3_pos[ai_s3_cnt][0].y = i + S3_KEY_POS_TABLE[MASK & temp_col_chess][0];
-						ai_s3_pos[ai_s3_cnt][1].x = c;
-						ai_s3_pos[ai_s3_cnt][1].y = i + S3_KEY_POS_TABLE[MASK & temp_col_chess][1];
-						++ai_s3_cnt;
-						break;
-					}
-				}
-			}
-		}
-		for (int r=0; r<GRID_N; ++r)
-		{
-			if (row_type[r] & F_AI_S3)  // 在第r行找到了活三
-			{
-				for (__int32 temp_row_chess = row_chess[r], i=0; i<10; ++i, temp_row_chess>>=2)
-				{
-					if (M_TABLE[MASK & temp_row_chess] == F_AI_S3)  // 第i次扫描发现了活三
-					{
-						ai_s3_pos[ai_s3_cnt][0].x = i + S3_KEY_POS_TABLE[MASK & temp_row_chess][0];
-						ai_s3_pos[ai_s3_cnt][0].y = r;
-						ai_s3_pos[ai_s3_cnt][1].x = i + S3_KEY_POS_TABLE[MASK & temp_row_chess][1];
-						ai_s3_pos[ai_s3_cnt][1].y = r;
-						++ai_s3_cnt;
-						break;
-					}
-				}
-			}
-		}
-		for (int l=0; l<GRID_DN; ++l) // l + y = x + 10
-		{
-			if (left_type[l] & F_AI_S3)
-			{
-				for (__int32 temp_left_chess = left_chess[l], i=0, count=getLeftCount(l); i<count; ++i, temp_left_chess>>=2)
-				{
-					if (M_TABLE[MASK & temp_left_chess] == F_AI_S3)
-					{
-						if (l <= 10)
-						{
-							ai_s3_pos[ai_s3_cnt][0].x = i + S3_KEY_POS_TABLE[MASK & temp_left_chess][0];
-							ai_s3_pos[ai_s3_cnt][0].y = 10 - l + ai_s3_pos[ai_s3_cnt][0].x;
-							ai_s3_pos[ai_s3_cnt][1].x = i + S3_KEY_POS_TABLE[MASK & temp_left_chess][1];
-							ai_s3_pos[ai_s3_cnt][1].y = 10 - l + ai_s3_pos[ai_s3_cnt][1].x;
-						}
-						else
-						{
-							ai_s3_pos[ai_s3_cnt][0].y = i + S3_KEY_POS_TABLE[MASK & temp_left_chess][0];
-							ai_s3_pos[ai_s3_cnt][0].x = l - 10 + ai_s3_pos[ai_s3_cnt][0].y;
-							ai_s3_pos[ai_s3_cnt][1].y = i + S3_KEY_POS_TABLE[MASK & temp_left_chess][1];
-							ai_s3_pos[ai_s3_cnt][1].x = l - 10 + ai_s3_pos[ai_s3_cnt][1].y;
-						}
-
-						++ai_s3_cnt;
-						break;
-					}
-				}
-			}
-		}
-		for (int r=0; r<GRID_DN; ++r) // r + 4 = x + y
-		{
-			if (right_type[r] & F_AI_S3)
-			{
-				for (__int32 temp_right_chess = right_chess[r], i=0, count=getRightCount(r); i<count; ++i, temp_right_chess>>=2)
-				{
-					if (M_TABLE[MASK & temp_right_chess] == F_AI_S3)
-					{
-						if (r <= 10)
-						{
-							ai_s3_pos[ai_s3_cnt][0].y = i + S3_KEY_POS_TABLE[MASK & temp_right_chess][0];
-							ai_s3_pos[ai_s3_cnt][0].x = r + 4 - ai_s3_pos[ai_s3_cnt][0].y;
-							ai_s3_pos[ai_s3_cnt][1].y = i + S3_KEY_POS_TABLE[MASK & temp_right_chess][1];
-							ai_s3_pos[ai_s3_cnt][1].x = r + 4 - ai_s3_pos[ai_s3_cnt][1].y;
-						}
-						else
-						{
-							ai_s3_pos[ai_s3_cnt][0].x = 14 - i - S3_KEY_POS_TABLE[MASK & temp_right_chess][0];
-							ai_s3_pos[ai_s3_cnt][0].y = r + 4 - ai_s3_pos[ai_s3_cnt][0].x;
-							ai_s3_pos[ai_s3_cnt][1].x = 14 - i - S3_KEY_POS_TABLE[MASK & temp_right_chess][1];
-							ai_s3_pos[ai_s3_cnt][1].y = r + 4 - ai_s3_pos[ai_s3_cnt][1].x;
-						}
-
-						++ai_s3_cnt;
-						break;
-					}
-				}
-			}
-		}
-
-		int top = 0;
-
-		for (int i=0; i<hu_a3_cnt; ++i)
-		{
-			choices_buffer[top].x = hu_a3_pos[i][0].x, choices_buffer[top].y = hu_a3_pos[i][0].y; ++top;
-			choices_buffer[top].x = hu_a3_pos[i][1].x, choices_buffer[top].y = hu_a3_pos[i][1].y; ++top;
-		}
-
-		for (int i=0; i<ai_s3_cnt; ++i)
-		{
-			choices_buffer[top].x = ai_s3_pos[i][0].x, choices_buffer[top].y = ai_s3_pos[i][0].y; ++top;
-			choices_buffer[top].x = ai_s3_pos[i][1].x, choices_buffer[top].y = ai_s3_pos[i][1].y; ++top;
-		}
-
-		for (int i=0; i<hu_a3_cnt; ++i)
-		{
-			choices_buffer[top].x = hu_a3_pos[i][2].x, choices_buffer[top].y = hu_a3_pos[i][2].y; ++top;
-		}
-
-		return top;
-	}
-
-	else if (cur_player == H1_CHESS)
-	{
-		int ai_a3_cnt = 0, hu_s3_cnt = 0;
-		Choice ai_a3_pos[GRID_N * 3][3], hu_s3_pos[GRID_N * 3][2];
-
-		for (int c=0; c<GRID_N; ++c)
-		{
-			if (col_type[c] & F_AI_A3)  // 在第c列发现了活三
-			{
-				for (__int32 temp_col_chess = col_chess[c], i=0; i<10; ++i, temp_col_chess>>=2)
-				{
-					if (M_TABLE[MASK & temp_col_chess] == F_AI_A3)  // 第i次扫描发现了活三
-					{
-						ai_a3_pos[ai_a3_cnt][0].x = c;
-						ai_a3_pos[ai_a3_cnt][0].y = i + A3_KEY_POS_TABLE[MASK & temp_col_chess][0];
-						ai_a3_pos[ai_a3_cnt][1].x = c;
-						ai_a3_pos[ai_a3_cnt][1].y = i + A3_KEY_POS_TABLE[MASK & temp_col_chess][1];
-						ai_a3_pos[ai_a3_cnt][2].x = c;
-						ai_a3_pos[ai_a3_cnt][2].y = i + A3_KEY_POS_TABLE[MASK & temp_col_chess][2];
-						++ai_a3_cnt;
-						break;
-					}
-				}
-			}
-		}
-		for (int r=0; r<GRID_N; ++r)
-		{
-			if (row_type[r] & F_AI_A3)  // 在第r行找到了活三
-			{
-				for (__int32 temp_row_chess = row_chess[r], i=0; i<10; ++i, temp_row_chess>>=2)
-				{
-					if (M_TABLE[MASK & temp_row_chess] == F_AI_A3)  // 第i次扫描发现了活三
-					{
-						ai_a3_pos[ai_a3_cnt][0].x = i + A3_KEY_POS_TABLE[MASK & temp_row_chess][0];
-						ai_a3_pos[ai_a3_cnt][0].y = r;
-						ai_a3_pos[ai_a3_cnt][1].x = i + A3_KEY_POS_TABLE[MASK & temp_row_chess][1];
-						ai_a3_pos[ai_a3_cnt][1].y = r;
-						ai_a3_pos[ai_a3_cnt][2].x = i + A3_KEY_POS_TABLE[MASK & temp_row_chess][2];
-						ai_a3_pos[ai_a3_cnt][2].y = r;
-						++ai_a3_cnt;
-						break;
-					}
-				}
-			}
-		}
-		for (int l=0; l<GRID_DN; ++l) // l + y = x + 10
-		{
-			if (left_type[l] & F_AI_A3)
-			{
-				for (__int32 temp_left_chess = left_chess[l], i=0, count=getLeftCount(l); i<count; ++i, temp_left_chess>>=2)
-				{
-					if (M_TABLE[MASK & temp_left_chess] == F_AI_A3)
-					{
-						if (l <= 10)
-						{
-							ai_a3_pos[ai_a3_cnt][0].x = i + A3_KEY_POS_TABLE[MASK & temp_left_chess][0];
-							ai_a3_pos[ai_a3_cnt][0].y = 10 - l + ai_a3_pos[ai_a3_cnt][0].x;
-							ai_a3_pos[ai_a3_cnt][1].x = i + A3_KEY_POS_TABLE[MASK & temp_left_chess][1];
-							ai_a3_pos[ai_a3_cnt][1].y = 10 - l + ai_a3_pos[ai_a3_cnt][1].x;
-							ai_a3_pos[ai_a3_cnt][2].x = i + A3_KEY_POS_TABLE[MASK & temp_left_chess][2];
-							ai_a3_pos[ai_a3_cnt][2].y = 10 - l + ai_a3_pos[ai_a3_cnt][2].x;
-						}
-						else
-						{
-							ai_a3_pos[ai_a3_cnt][0].y = i + A3_KEY_POS_TABLE[MASK & temp_left_chess][0];
-							ai_a3_pos[ai_a3_cnt][0].x = l - 10 + ai_a3_pos[ai_a3_cnt][0].y;
-							ai_a3_pos[ai_a3_cnt][1].y = i + A3_KEY_POS_TABLE[MASK & temp_left_chess][1];
-							ai_a3_pos[ai_a3_cnt][1].x = l - 10 + ai_a3_pos[ai_a3_cnt][1].y;
-							ai_a3_pos[ai_a3_cnt][2].y = i + A3_KEY_POS_TABLE[MASK & temp_left_chess][2];
-							ai_a3_pos[ai_a3_cnt][2].x = l - 10 + ai_a3_pos[ai_a3_cnt][2].y;
-						}
-
-						++ai_a3_cnt;
-						break;
-					}
-				}
-			}
-		}
-		for (int r=0; r<GRID_DN; ++r) // r + 4 = x + y
-		{
-			if (right_type[r] & F_AI_A3)
-			{
-				for (__int32 temp_right_chess = right_chess[r], i=0, count=getRightCount(r); i<count; ++i, temp_right_chess>>=2)
-				{
-					if (M_TABLE[MASK & temp_right_chess] == F_AI_A3)
-					{
-						if (r <= 10)
-						{
-							ai_a3_pos[ai_a3_cnt][0].y = i + A3_KEY_POS_TABLE[MASK & temp_right_chess][0];
-							ai_a3_pos[ai_a3_cnt][0].x = r + 4 - ai_a3_pos[ai_a3_cnt][0].y;
-							ai_a3_pos[ai_a3_cnt][1].y = i + A3_KEY_POS_TABLE[MASK & temp_right_chess][1];
-							ai_a3_pos[ai_a3_cnt][1].x = r + 4 - ai_a3_pos[ai_a3_cnt][1].y;
-							ai_a3_pos[ai_a3_cnt][2].y = i + A3_KEY_POS_TABLE[MASK & temp_right_chess][2];
-							ai_a3_pos[ai_a3_cnt][2].x = r + 4 - ai_a3_pos[ai_a3_cnt][2].y;
-						}
-						else
-						{
-							ai_a3_pos[ai_a3_cnt][0].x = 14 - i - A3_KEY_POS_TABLE[MASK & temp_right_chess][0];
-							ai_a3_pos[ai_a3_cnt][0].y = r + 4 - ai_a3_pos[ai_a3_cnt][0].x;
-							ai_a3_pos[ai_a3_cnt][1].x = 14 - i - A3_KEY_POS_TABLE[MASK & temp_right_chess][1];
-							ai_a3_pos[ai_a3_cnt][1].y = r + 4 - ai_a3_pos[ai_a3_cnt][1].x;
-							ai_a3_pos[ai_a3_cnt][2].x = 14 - i - A3_KEY_POS_TABLE[MASK & temp_right_chess][2];
-							ai_a3_pos[ai_a3_cnt][2].y = r + 4 - ai_a3_pos[ai_a3_cnt][2].x;
-						}
-
-						++ai_a3_cnt;
-						break;
-					}
-				}
-			}
-		}
-
-
-		for (int c=0; c<GRID_N; ++c)
-		{
-			if (col_type[c] & F_HU_S3)  // 在第c列发现了活三
-			{
-				for (__int32 temp_col_chess = col_chess[c], i=0; i<10; ++i, temp_col_chess>>=2)
-				{
-					if (M_TABLE[MASK & temp_col_chess] == F_HU_S3)  // 第i次扫描发现了活三
-					{
-						hu_s3_pos[hu_s3_cnt][0].x = c;
-						hu_s3_pos[hu_s3_cnt][0].y = i + S3_KEY_POS_TABLE[MASK & temp_col_chess][0];
-						hu_s3_pos[hu_s3_cnt][1].x = c;
-						hu_s3_pos[hu_s3_cnt][1].y = i + S3_KEY_POS_TABLE[MASK & temp_col_chess][1];
-						++hu_s3_cnt;
-						break;
-					}
-				}
-			}
-		}
-		for (int r=0; r<GRID_N; ++r)
-		{
-			if (row_type[r] & F_HU_S3)  // 在第r行找到了活三
-			{
-				for (__int32 temp_row_chess = row_chess[r], i=0; i<10; ++i, temp_row_chess>>=2)
-				{
-					if (M_TABLE[MASK & temp_row_chess] == F_HU_S3)  // 第i次扫描发现了活三
-					{
-						hu_s3_pos[hu_s3_cnt][0].x = i + S3_KEY_POS_TABLE[MASK & temp_row_chess][0];
-						hu_s3_pos[hu_s3_cnt][0].y = r;
-						hu_s3_pos[hu_s3_cnt][1].x = i + S3_KEY_POS_TABLE[MASK & temp_row_chess][1];
-						hu_s3_pos[hu_s3_cnt][1].y = r;
-						++hu_s3_cnt;
-						break;
-					}
-				}
-			}
-		}
-		for (int l=0; l<GRID_DN; ++l) // l + y = x + 10
-		{
-			if (left_type[l] & F_HU_S3)
-			{
-				for (__int32 temp_left_chess = left_chess[l], i=0, count=getLeftCount(l); i<count; ++i, temp_left_chess>>=2)
-				{
-					if (M_TABLE[MASK & temp_left_chess] == F_HU_S3)
-					{
-						if (l <= 10)
-						{
-							hu_s3_pos[hu_s3_cnt][0].x = i + S3_KEY_POS_TABLE[MASK & temp_left_chess][0];
-							hu_s3_pos[hu_s3_cnt][0].y = 10 - l + hu_s3_pos[hu_s3_cnt][0].x;
-							hu_s3_pos[hu_s3_cnt][1].x = i + S3_KEY_POS_TABLE[MASK & temp_left_chess][1];
-							hu_s3_pos[hu_s3_cnt][1].y = 10 - l + hu_s3_pos[hu_s3_cnt][1].x;
-						}
-						else
-						{
-							hu_s3_pos[hu_s3_cnt][0].y = i + S3_KEY_POS_TABLE[MASK & temp_left_chess][0];
-							hu_s3_pos[hu_s3_cnt][0].x = l - 10 + hu_s3_pos[hu_s3_cnt][0].y;
-							hu_s3_pos[hu_s3_cnt][1].y = i + S3_KEY_POS_TABLE[MASK & temp_left_chess][1];
-							hu_s3_pos[hu_s3_cnt][1].x = l - 10 + hu_s3_pos[hu_s3_cnt][1].y;
-						}
-
-						++hu_s3_cnt;
-						break;
-					}
-				}
-			}
-		}
-		for (int r=0; r<GRID_DN; ++r) // r + 4 = x + y
-		{
-			if (right_type[r] & F_HU_S3)
-			{
-				for (__int32 temp_right_chess = right_chess[r], i=0, count=getRightCount(r); i<count; ++i, temp_right_chess>>=2)
-				{
-					if (M_TABLE[MASK & temp_right_chess] == F_HU_S3)
-					{
-						if (r <= 10)
-						{
-							hu_s3_pos[hu_s3_cnt][0].y = i + S3_KEY_POS_TABLE[MASK & temp_right_chess][0];
-							hu_s3_pos[hu_s3_cnt][0].x = r + 4 - hu_s3_pos[hu_s3_cnt][0].y;
-							hu_s3_pos[hu_s3_cnt][1].y = i + S3_KEY_POS_TABLE[MASK & temp_right_chess][1];
-							hu_s3_pos[hu_s3_cnt][1].x = r + 4 - hu_s3_pos[hu_s3_cnt][1].y;
-						}
-						else
-						{
-							hu_s3_pos[hu_s3_cnt][0].x = 14 - i - S3_KEY_POS_TABLE[MASK & temp_right_chess][0];
-							hu_s3_pos[hu_s3_cnt][0].y = r + 4 - hu_s3_pos[hu_s3_cnt][0].x;
-							hu_s3_pos[hu_s3_cnt][1].x = 14 - i - S3_KEY_POS_TABLE[MASK & temp_right_chess][1];
-							hu_s3_pos[hu_s3_cnt][1].y = r + 4 - hu_s3_pos[hu_s3_cnt][1].x;
-						}
-
-						++hu_s3_cnt;
-						break;
-					}
-				}
-			}
-		}
-
-		int top = 0;
-
-		for (int i=0; i<ai_a3_cnt; ++i)
-		{
-			choices_buffer[top].x = ai_a3_pos[i][0].x, choices_buffer[top].y = ai_a3_pos[i][0].y; ++top;
-			choices_buffer[top].x = ai_a3_pos[i][1].x, choices_buffer[top].y = ai_a3_pos[i][1].y; ++top;
-		}
-
-		for (int i=0; i<hu_s3_cnt; ++i)
-		{
-			choices_buffer[top].x = hu_s3_pos[i][0].x, choices_buffer[top].y = hu_s3_pos[i][0].y; ++top;
-			choices_buffer[top].x = hu_s3_pos[i][1].x, choices_buffer[top].y = hu_s3_pos[i][1].y; ++top;
-		}
-
-		for (int i=0; i<ai_a3_cnt; ++i)
-		{
-			choices_buffer[top].x = ai_a3_pos[i][2].x, choices_buffer[top].y = ai_a3_pos[i][2].y; ++top;
-		}
-
-		return top;
-	}
-
-	else
-		return 0;
-
-	qDebug() << "??????????";
-	return 0;
-}
-
 
 int AiThread::getMinMaxSearchChoices(Choice *choices_buffer, Chessid cur_player) const
 {
@@ -1457,22 +984,8 @@ int AiThread::getMinMaxSearchChoices(Choice *choices_buffer, Chessid cur_player)
 	}
 
 	myQuickSort(choices_buffer, cnt);
-
-//	for (r=kill_cnt=0; r<cnt; r++)
-//	{
-//		if (choices_buffer[r].prior >= KILL_PRIOR)
-//			++kill_cnt;
-//		else break;
-//	}
-
-//	if( kill_cnt>=3 && kill_cnt + KILL_NUM < cnt )			  // 出现杀棋时 进行剪枝
-//	{
-//		cnt = kill_cnt + KILL_NUM ;
-//	}
-
 	return cnt;
 }
-
 
 int AiThread::getKillSearchChoices(Choice *choices_buffer, Chessid cur_player) const
 {
@@ -1524,11 +1037,7 @@ int AiThread::getKillSearchChoices(Choice *choices_buffer, Chessid cur_player) c
 		}
 	}
 
-	if (cnt)
-	{
-		myQuickSort(choices_buffer, cnt);
-	}
-
+	myQuickSort(choices_buffer, cnt);
 	return cnt;
 }
 
@@ -1577,7 +1086,6 @@ void AiThread::myQuickSort(Choice *a, int n) const
 void AiThread::algoDebuging() const
 {
 	qDebug("Dep: %d %d %d", BASE_DEPTH, KILL_DEPTH, RES_DEPTH);
-//	qDebug("KN : %d", KILL_NUM);
 	qDebug("NC : %d", NEAR_CNT);
 
 #ifdef __OPEN_EP4
