@@ -58,7 +58,7 @@ void MainWindow::mouseReleaseEvent(QMouseEvent *event)
 	{
 		if (chess_board.isAvaliable(mouse_cursor) && this->now_player_id == H1_CHESS)
 		{
-			PVERound();				// 现在是玩家的回合，并且该落子点可用，玩家落子
+			PVERound();			// 现在是玩家的回合，并且该落子点可用，玩家落子
 		}
 	}
 	else if (game_mode == PVP_MODE)
@@ -127,9 +127,6 @@ void MainWindow::resetMarks()
 
 	P4_key_pos_cnt = ai_thread.findEnemyP4(P4_key_pos, AI_CHESS);
 	P4_key_pos_cnt += ai_thread.findEnemyP4(P4_key_pos+P4_key_pos_cnt, H1_CHESS);
-
-//	SA3_key_pos_cnt = ai_thread.findAllS3A3(A3_key_pos, AI_CHESS);
-//	SA3_key_pos_cnt += ai_thread.findAllS3A3(A3_key_pos+SA3_key_pos_cnt, H1_CHESS);
 }
 
 void MainWindow::clearMarks()
