@@ -7,7 +7,7 @@ enum TIME_PARAM
 {
 	ALL_MIN_TIME = 150,
 	WIN_MIN_TIME = 150,
-	DEF_MIN_TIME = 1000,
+	DEF_MIN_TIME = 800,
 	LOSE_MIN_TIME = 2000
 };
 
@@ -75,6 +75,7 @@ void AiThread::run()
 	// 最终花费时间
 	cost_time = QTime::currentTime().msecsSinceStartOfDay() - start_time;
 	qDebug() << "score : " << board_score << "time : " << cost_time;
+//	qDebug() << "AI move at" << ai_next_move.x << "," << ai_next_move.y;
 
 	emit foundNextMove(ai_next_move);
 	round++;
@@ -101,12 +102,12 @@ void AiThread::resetRound()
 	round = 1;
 }
 
-bool AiThread::win()
+bool AiThread::win() const
 {
 	return all_type[I_AI_C5];
 }
 
-bool AiThread::lose()
+bool AiThread::lose() const
 {
 	return all_type[I_HU_C5];
 }
@@ -240,317 +241,5 @@ void AiThread::updateChessType(const int x, const int y)
 
 		temp2 = right_type[r];
 		SET(temp2, all_type);
-	}
-}
-
-void AiThread::initHashTable()
-{
-	this->initMTable();
-	this->initCountTable();
-}
-
-void AiThread::initBoard()
-{
-	mem0(mirror_board);
-
-	mem0(col_chess);
-	mem0(col_type);
-	mem0(row_chess);
-	mem0(row_type);
-	mem0(left_chess);
-	mem0(left_type);
-	mem0(right_chess);
-	mem0(right_type);
-	mem0(all_type);
-
-	left_chess[0] = left_chess[GRID_DN-1] = OUT_CHESS << 10;
-	right_chess[0] = right_chess[GRID_DN-1] = OUT_CHESS << 10;
-
-	this->setNotWarned();
-	round = 0;
-}
-
-
-void AiThread::initMTable()
-{
-	mem0(M_TABLE);
-	memf1(P4_KEY_POS_TABLE);
-	memf1(A3_KEY_POS_TABLE);
-
-	// AI连五
-	INIT(0x555, AI_C5);
-	INIT(0x554, AI_C5);
-	INIT(0x155, AI_C5);
-	INIT(0x556, AI_C5);
-	INIT(0x955, AI_C5);
-	INIT(0xd55, AI_C5);  // 五格
-
-	// Man连五
-	INIT(0xaaa, HU_C5);
-	INIT(0xaa8, HU_C5);
-	INIT(0x2aa, HU_C5);
-	INIT(0xaa9, HU_C5);
-	INIT(0x6aa, HU_C5);
-	INIT(0xeaa, HU_C5);  // 五格
-
-	//AI活四
-	INIT(0x154, AI_A4);
-
-	//Man活四
-	INIT(0x2a8, HU_A4);
-
-	//AI活三
-	INIT(0x150, AI_A3, 1, 5, 0);	// .ooo..（右边是低位）
-	INIT(0x144, AI_A3, 2, 5, 0);	// .oo.o.
-	INIT(0x114, AI_A3, 3, 0, 5);	// .o.oo.
-	INIT(0x054, AI_A3, 4, 0, 5);	// ..ooo.
-//	INIT(0xc54, AI_A3);				// 五格没有活三！
-
-	//Man活三
-	INIT(0x2a0, HU_A3, 1, 5, 0);	// .xxx..
-	INIT(0x288, HU_A3, 2, 5, 0);	// .xx.x.
-	INIT(0x228, HU_A3, 3, 0, 5);	// .x.xx.
-	INIT(0x0a8, HU_A3, 4, 0, 5);	// ..xxx.
-//	INIT(0xca8, HU_A3);				// 五格没有活三！
-
-	//AI活二
-	INIT(0x140, AI_A2);
-	INIT(0x110, AI_A2);
-	INIT(0x104, AI_A2);
-	INIT(0x050, AI_A2);
-	INIT(0xc50, AI_A2);  // 五格
-	INIT(0x044, AI_A2);
-	INIT(0xc44, AI_A2);  // 五格
-	INIT(0x014, AI_A2);
-	INIT(0xc14, AI_A2);  // 五格
-
-	//Man活二
-	INIT(0x280, HU_A2);
-	INIT(0x220, HU_A2);
-	INIT(0x208, HU_A2);
-	INIT(0x0a0, HU_A2);
-	INIT(0xca0, HU_A2);  // 五格
-	INIT(0x088, HU_A2);
-	INIT(0xc88, HU_A2);  // 五格
-	INIT(0x028, HU_A2);
-	INIT(0xc28, HU_A2);  // 五格
-
-	//AI活一
-	INIT(0x100, AI_A1);
-	INIT(0x040, AI_A1);
-	INIT(0xc40, AI_A1);  // 五格
-	INIT(0x010, AI_A1);
-	INIT(0xc10, AI_A1);  // 五格
-	INIT(0x004, AI_A1);
-	INIT(0xc04, AI_A1);  // 五格
-
-	//Man活一
-	INIT(0x200, HU_A1);
-	INIT(0x080, HU_A1);
-	INIT(0xc80, HU_A1);  // 五格
-	INIT(0x020, HU_A1);
-	INIT(0xc20, HU_A1);  // 五格
-	INIT(0x008, HU_A1);
-	INIT(0xc08, HU_A1);  // 五格
-
-	int i, x, y, ix, iy;
-	int six_scanner[6];
-
-	// 枚举six_scanner中出现的所有棋型，打表
-	RUSH3(six_scanner[0]) RUSH3(six_scanner[1]) RUSH3(six_scanner[2])
-	RUSH3(six_scanner[3]) RUSH3(six_scanner[4]) RUSH3(six_scanner[5])
-	{
-		x = y = ix = iy = 0;
-		if( six_scanner[0] == AI_CHESS ) x++;
-		else if( six_scanner[0] == H1_CHESS ) y++;
-		if( six_scanner[1] == AI_CHESS ) x++,ix++;
-		else if( six_scanner[1] == H1_CHESS ) y++,iy++;
-		if( six_scanner[2] == AI_CHESS ) x++,ix++;
-		else if( six_scanner[2] == H1_CHESS ) y++,iy++;
-		if( six_scanner[3] == AI_CHESS ) x++,ix++;
-		else if( six_scanner[3] == H1_CHESS ) y++,iy++;
-		if( six_scanner[4] == AI_CHESS ) x++,ix++;
-		else if( six_scanner[4] == H1_CHESS ) y++,iy++;
-		if( six_scanner[5] == AI_CHESS ) ix++;
-		else if( six_scanner[5] == H1_CHESS ) iy++;
-
-		i = six_scanner[0] + (six_scanner[1]<<2) + (six_scanner[2]<<4) + (six_scanner[3]<<6) + (six_scanner[4]<<8) + (six_scanner[5]<<10);
-
-		if( !M_TABLE[i] )
-		{
-			//AI冲四
-			if( (x==4 && y==0) || (ix==4 && iy==0) )
-			{
-				for (int pos=0; pos<6; pos++)
-				{
-					if (six_scanner[pos] == NO_CHESS)
-					{
-						int cnt = 1, l = pos-1, r = pos+1;
-						while (l>=0 && six_scanner[l] == AI_CHESS)
-							--l, ++cnt;
-						while ( r<6 && six_scanner[r] == AI_CHESS)
-							++r, ++cnt;
-						if (cnt == 5)
-						{
-							INIT(i, AI_P4, pos);
-							break;
-						}
-					}
-				}
-			}
-
-			//Man冲四
-			else if( (x==0 && y==4) || (ix==0 && iy==4) )
-			{
-				for (int pos=0; pos<6; pos++)
-				{
-					if (six_scanner[pos] == NO_CHESS)
-					{
-						int cnt = 1, l = pos-1, r = pos+1;
-						while (l>=0 && six_scanner[l] == H1_CHESS)
-							--l, ++cnt;
-						while ( r<6 && six_scanner[r] == H1_CHESS)
-							++r, ++cnt;
-						if (cnt == 5)
-						{
-							INIT(i, HU_P4, pos);
-							break;
-						}
-					}
-				}
-			}
-
-			//AI眠三
-			else if( (x==3 && y==0) || (ix==3 && iy==0) )
-				INIT(i, AI_S3);
-
-			//Man眠三
-			else if( (x==0 && y==3) || (ix==0 && iy==3) )
-				INIT(i, HU_S3);
-
-			//AI眠二
-			else if( (x==2 && y==0) || (ix==2 && iy==0) )
-				INIT(i, AI_S2);
-
-			//Man眠二
-			else if( (x==0 && y==2) || (ix==0 && iy==2) )
-				INIT(i, HU_S2);
-		}
-	}
-
-	int five_scanner[5];
-	// 枚举five_scanner中出现的所有棋型，打表
-	RUSH3(five_scanner[0]) RUSH3(five_scanner[1]) RUSH3(five_scanner[2])
-	RUSH3(five_scanner[3]) RUSH3(five_scanner[4])
-	{
-		x = y = ix = iy = 0;
-		if( five_scanner[0] == AI_CHESS ) x++;
-		else if( five_scanner[0] == H1_CHESS ) y++;
-		if( five_scanner[1] == AI_CHESS ) x++,ix++;
-		else if( five_scanner[1] == H1_CHESS ) y++,iy++;
-		if( five_scanner[2] == AI_CHESS ) x++,ix++;
-		else if( five_scanner[2] == H1_CHESS ) y++,iy++;
-		if( five_scanner[3] == AI_CHESS ) x++,ix++;
-		else if( five_scanner[3] == H1_CHESS ) y++,iy++;
-		if( five_scanner[4] == AI_CHESS ) ix++;
-		else if( five_scanner[4] == H1_CHESS ) iy++;
-
-		i = five_scanner[0] + (five_scanner[1]<<2) + (five_scanner[2]<<4) + (five_scanner[3]<<6) + (five_scanner[4]<<8) + (OUT_CHESS<<10);
-
-		if( !M_TABLE[i] )
-		{
-			//AI冲四
-			if( (x==3 && y==0) || (ix==3 && iy==0) )
-			{
-				for (int pos=0; pos<5; pos++)
-				{
-					if (five_scanner[pos] == NO_CHESS)
-					{
-						int cnt = 1, l = pos-1, r = pos+1;
-						while (l>=0 && five_scanner[l] == AI_CHESS)
-							--l, ++cnt;
-						while ( r<6 && five_scanner[r] == AI_CHESS)
-							++r, ++cnt;
-						if (cnt == 5)
-						{
-							INIT(i, AI_P4, pos);
-							break;
-						}
-					}
-				}
-			}
-
-			//Man冲四
-			else if( (x==0 && y==3) || (ix==0 && iy==3) )
-			{
-				for (int pos=0; pos<5; pos++)
-				{
-					if (five_scanner[pos] == NO_CHESS)
-					{
-						int cnt = 1, l = pos-1, r = pos+1;
-						while (l>=0 && five_scanner[l] == H1_CHESS)
-							--l, ++cnt;
-						while ( r<6 && five_scanner[r] == H1_CHESS)
-							++r, ++cnt;
-						if (cnt == 5)
-						{
-							INIT(i, HU_P4, pos);
-							break;
-						}
-					}
-				}
-			}
-
-			//AI眠三
-			else if( (x==2 && y==0) || (ix==2 && iy==0) )
-				INIT(i, AI_S3);
-
-			//Man眠三
-			else if( (x==0 && y==2) || (ix==0 && iy==2) )
-				INIT(i, HU_S3);
-
-			//AI眠二
-			else if( (x==1 && y==0) || (ix==1 && iy==0) )
-				INIT(i, AI_S2);
-
-			//Man眠二
-			else if( (x==0 && y==1) || (ix==0 && iy==1) )
-				INIT(i, HU_S2);
-		}
-	}
-}
-
-void AiThread::initCountTable()
-{
-	for (int x=0; x<GRID_N; ++x)
-	{
-		for (int y=0; y<GRID_N; ++y)
-		{
-			int l = x - y + 10;
-			if (l>=0 && l<GRID_DN)
-			{
-				if (!l)
-					XY_TO_LEFT_COUNT[x][y] = 1;
-				else if (l<10)
-					XY_TO_LEFT_COUNT[x][y] = l;
-				else if (l<GRID_DN-1)
-					XY_TO_LEFT_COUNT[x][y] = GRID_DN - l - 1;
-				else
-					XY_TO_LEFT_COUNT[x][y] = 1;
-			}
-
-			int r = x + y - 4;
-			if (r>=0 && r<GRID_DN)
-			{
-				if (!r)
-					XY_TO_RIGHT_COUNT[x][y] = 1;
-				else if (r<10)
-					XY_TO_RIGHT_COUNT[x][y] = r;
-				else if (r<GRID_DN-1)
-					XY_TO_RIGHT_COUNT[x][y] = GRID_DN - r - 1;
-				else
-					XY_TO_RIGHT_COUNT[x][y] = 1;
-			}
-		}
 	}
 }
