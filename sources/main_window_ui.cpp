@@ -13,10 +13,13 @@ void MainWindow::paintEvent(QPaintEvent *event)
 	painter.init();
 	painter.drawGrid();
 
-	for (int i=0; i<P4_key_pos_cnt; ++i)
-		painter.drawKeyPos(Grid(P4_key_pos[i].x, P4_key_pos[i].y), true);
-	for (int i=0; i<SA3_key_pos_cnt; ++i)
-		painter.drawKeyPos(Grid(SA3_key_pos[i].x, SA3_key_pos[i].y), false);
+// 打开此两行注释，下棋时将出现冲四警告关键位置提示（红点）
+//	for (int i=0; i<P4_key_pos_cnt; ++i)
+//		painter.drawKeyPos(Grid(P4_key_pos[i].x, P4_key_pos[i].y), true);
+
+// 打开此两行注释，下棋时将出现眠三/活三警告关键位置提示（蓝点）
+//	for (int i=0; i<SA3_key_pos_cnt; ++i)
+//		painter.drawKeyPos(Grid(SA3_key_pos[i].x, SA3_key_pos[i].y), false);
 
 	if (chess_board.isAvaliable(mouse_cursor) && now_player_id != AI_CHESS)
 		painter.drawMark(mouse_cursor, now_player_id == black_player_id);
