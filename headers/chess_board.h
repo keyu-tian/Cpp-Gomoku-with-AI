@@ -7,7 +7,6 @@ class ChessBoard
 {
 	private:
 
-		// 记录黑方和棋盘信息
 		Chessid black_player_id;
 		Chessid board[GRID_N][GRID_N];
 
@@ -20,10 +19,9 @@ class ChessBoard
 		void takeChess(int x, int y);
 
 		Chessid getChessID(int x, int y) const;
-		Chessid getBlackPlayerID() const;
 		void setBlackPlayerID(Chessid id);
+		Chessid getBlackPlayerID() const;
 
-		//  判断是否越界/是合法落子点/刚刚落子是否造成胜利
 		bool isInside(int r, int c) const;
 		bool isInside(const Grid &c) const;
 		bool isAvaliable(const Grid &c) const;
