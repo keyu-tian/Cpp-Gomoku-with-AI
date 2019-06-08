@@ -58,12 +58,12 @@
 #define I_HU_A1		16		// Man 活一
 
 // 棋型对应分数
-#define C5score     	135000	 	// 连五
-#define A4score     	25000	 	// 活四
-#define P4score     	5201	 	// 冲四
+#define C5score		135000	 	// 连五
+#define A4score		25000	 	// 活四
+#define P4score		5201	 	// 冲四
 #define A3score		4991	 	// 活三
-#define S3score		410		// 眠三 最初分
-#define A2score		450		// 活二 最初分
+#define S3score		410		// 眠三
+#define A2score		450		// 活二
 #define S2score		70		// 眠二
 #define A1score		30		// 活一
 
@@ -72,22 +72,23 @@
 
 #define CHESS_TYPE_N	17		// 棋型种数
 
-#define MAX_INDEX_OF_M_TABLE 0xeaa+1		// 棋型哈希表大小
-						// 最大的下标是 111010101010B（eaaH），也就是OUT_CHESS加上5个H1_CHESS
+#define MAX_INDEX_OF_M_TABLE	0xeaa+1	// 棋型哈希表大小。因为最大的下标是 0b111010101010（0xeaa），也就是OUT_CHESS加上5个H1_CHESS
+#define CHOICE_BUF_SIZE		128	// 产生选择时，限定的最多可行步数
+
 
 #define INF 0xffffff				// 极大极小搜索的初始化值
 
 #define MASK 0xfff				// 一次性取出 6 个格子（12位）的 mask
-#define WIN_SCORE_FIX C5score +12-depth		// AI 必胜时，AI 应优先选择最近杀棋，故层数越高分数越低
-#define LOSE_SCORE_FIX -C5score -12+depth	// AI 必败时，AI 应延缓杀棋，故层数越高分数越高（绝对值越小）
+#define WIN_SCORE_FIX C5score +14-depth		// AI 必胜时，AI 应优先选择最近杀棋，故层数越高分数越低
+#define LOSE_SCORE_FIX -C5score -14+depth	// AI 必败时，AI 应延缓杀棋，故层数越高分数越高（绝对值越小）
 
-#define KILL_PRIOR 768				// 存在双活三或者更强的棋型
+#define KILL_PRIOR 768				// 若评估分数>=KILL_PRIOR，说明存在双活三或者更强的棋型
 
 
 // **************** 宏函数： ****************
 
 
-#define RUSH3(x) for(x=0; x<3; ++x)
+#define RUSH(x, ub) for(x=0; x<=ub; ++x)
 #define mem0(x) memset(x, 0, sizeof(x))
 #define memf1(x) memset(x, -1, sizeof(x))
 #define rand64() rand() ^ ((__int64)rand()<<15) ^ ((__int64)rand()<<30) ^ ((__int64)rand()<<45) ^ ((__int64)rand()<<60)
@@ -107,7 +108,7 @@
 // 初始化棋型哈希表
 #define _init_M(index, QX) M_TABLE[index] = F_##QX
 #define _init_M_P4(index, QX, p0) M_TABLE[index] = F_##QX, P4_KEY_POS_TABLE[index] = p0
-#define _init_M_A3_2(index, QX, p0, p1) M_TABLE[index] = F_##QX, A3_KEY_POS_TABLE[index][0] = p0, A3_KEY_POS_TABLE[index][1] = p1
+#define _init_M_A3_2(index, QX, p0, p1) M_TABLE[index] = F_##QX, S3_KEY_POS_TABLE[index][0] = p0, S3_KEY_POS_TABLE[index][1] = p1
 #define _init_M_A3_3(index, QX, p0, p1, p2) M_TABLE[index] = F_##QX, A3_KEY_POS_TABLE[index][0] = p0, A3_KEY_POS_TABLE[index][1] = p1, A3_KEY_POS_TABLE[index][2] = p2
 #define _generInit(_1, _2, _3, _4, _5, __, ...) __
 #define INIT(...) _generInit(__VA_ARGS__, _init_M_A3_3, _init_M_A3_2, _init_M_P4, _init_M, ...)(__VA_ARGS__)
@@ -120,32 +121,32 @@
 #define _reset_(QX, temp_line_type, all)	if(temp_line_type & F_AI_##QX) --all[I_AI_##QX]; \
 						if(temp_line_type & F_HU_##QX) --all[I_HU_##QX]
 #define RESET(line_type, temp_line_type, all)		\
-	_reset_(C5, temp_line_type, all);		\
-	_reset_(A4, temp_line_type, all);		\
-	_reset_(P4, temp_line_type, all);		\
-	_reset_(A3, temp_line_type, all);		\
-	_reset_(S3, temp_line_type, all);		\
-	_reset_(A2, temp_line_type, all);		\
-	_reset_(S2, temp_line_type, all);		\
-	_reset_(A1, temp_line_type, all);		\
-	line_type = 0
+			_reset_(C5, temp_line_type, all);		\
+			_reset_(A4, temp_line_type, all);		\
+			_reset_(P4, temp_line_type, all);		\
+			_reset_(A3, temp_line_type, all);		\
+			_reset_(S3, temp_line_type, all);		\
+			_reset_(A2, temp_line_type, all);		\
+			_reset_(S2, temp_line_type, all);		\
+			_reset_(A1, temp_line_type, all);		\
+			line_type = 0
 
 
 
 
 
-// 在棋盘总棋型计数数组中 加上某条直线上的所有棋型
+// 在棋盘总棋型计数数组中 加上某条直线上的所有棋型（认为某条线上的每种棋型至多只有1个）
 #define _set_(QX, line_type, all)	if(line_type & F_AI_##QX) ++all[I_AI_##QX]; \
 					if(line_type & F_HU_##QX) ++all[I_HU_##QX]
-#define SET(line_type, all)			\
-	_set_(C5, line_type, all);		\
-	_set_(A4, line_type, all);		\
-	_set_(P4, line_type, all);		\
-	_set_(A3, line_type, all);		\
-	_set_(S3, line_type, all);		\
-	_set_(A2, line_type, all);		\
-	_set_(S2, line_type, all);		\
-	_set_(A1, line_type, all)
+#define SET(line_type, all)				\
+			_set_(C5, line_type, all);	\
+			_set_(A4, line_type, all);	\
+			_set_(P4, line_type, all);	\
+			_set_(A3, line_type, all);	\
+			_set_(S3, line_type, all);	\
+			_set_(A2, line_type, all);	\
+			_set_(S2, line_type, all);	\
+			_set_(A1, line_type, all)
 
 
 
@@ -154,15 +155,15 @@
 // 根据棋盘总棋型计数数组计算总分
 #define _eval_(QX, sb, sw)		sb += all_type[I_AI_##QX] * QX##score; \
 					sw += all_type[I_HU_##QX] * QX##score
-#define EVAL(sb, sw)			\
-	_eval_(C5, sb, sw);		\
-	_eval_(A4, sb, sw);		\
-	_eval_(P4, sb, sw);		\
-	_eval_(A3, sb, sw);		\
-	_eval_(S3, sb, sw);		\
-	_eval_(A2, sb, sw);		\
-	_eval_(S2, sb, sw);		\
-	_eval_(A1, sb, sw)
+#define EVAL(sb, sw)				\
+			_eval_(C5, sb, sw);	\
+			_eval_(A4, sb, sw);	\
+			_eval_(P4, sb, sw);	\
+			_eval_(A3, sb, sw);	\
+			_eval_(S3, sb, sw);	\
+			_eval_(A2, sb, sw);	\
+			_eval_(S2, sb, sw);	\
+			_eval_(A1, sb, sw)
 
 
 
@@ -183,11 +184,11 @@
 		if (line_type & F_##BW##S3)		\
 			line_type &= F_D##BW##S3;	\
 	}
-#define DEAL_34(line_type)				\
-	do						\
-	{						\
-		__dl(line_type, AI_)			\
-		__dl(line_type, HU_)			\
+#define DEAL_34(line_type)		\
+	do				\
+	{				\
+		__dl(line_type, AI_)	\
+		__dl(line_type, HU_)	\
 	} while(0)
 
 
@@ -195,6 +196,8 @@
 
 
 // 估计某条线上的 眠三及以上的棋型丰富程度
+// M_TABLE[line_chess & MASK] & F_C5 <=> M_TABLE[line_chess & MASK] == F_AI_C5 || M_TABLE[line_chess & MASK] == F_HU_C5
+// 所以 M_TABLE[line_chess & MASK] & F_C5 不能改成 M_TABLE[line_chess & MASK] == F_C5 哦！
 #define EVAL_MIN_MAX_PRIOR(line_chess)			\
 		if(M_TABLE[line_chess & MASK] & F_C5)	\
 			return 16384;			\
@@ -211,6 +214,7 @@
 			min_max_prior += 16;		\
 		if(M_TABLE[line_chess & MASK] & F_S3)	\
 			min_max_prior += 14
+//		历史：min_max_prior += 30;
 
 
 
@@ -218,16 +222,20 @@
 // 估计某条线上的杀棋棋型丰富程度
 #define EVAL_KILL_PRIOR(line_chess)			\
 		if(M_TABLE[line_chess & MASK] & F_C5)	\
-			return 100;			\
+			return 512;			\
 		if(M_TABLE[line_chess & MASK] & F_A4)	\
 		{					\
-			kill_prior += 16;		\
+			kill_prior += 128;		\
 			break;				\
 		}					\
 		if(M_TABLE[line_chess & MASK] & F_P4)	\
-			++kill_prior;			\
+		{					\
+			kill_prior += 16;		\
+		}					\
 		if(M_TABLE[line_chess & MASK] & F_A3)	\
-			++kill_prior
+		{					\
+			kill_prior += 16;		\
+		}
 
 
 
