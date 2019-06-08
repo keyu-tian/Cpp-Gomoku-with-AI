@@ -47,7 +47,7 @@ class MainWindow : public QMainWindow
 		int P4_key_pos_cnt;
 		int SA3_key_pos_cnt;
 		Choice P4_key_pos[GRID_N * GRID_N];
-		Choice A3_key_pos[GRID_N * GRID_N];
+		Choice SA3_key_pos[GRID_N * GRID_N];
 
 	public:
 
