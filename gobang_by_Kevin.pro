@@ -24,7 +24,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 
 SOURCES += \
-        main.cpp \
+    main.cpp \
     base.cpp \
     aithread_base.cpp \
     aithread_algo.cpp \
