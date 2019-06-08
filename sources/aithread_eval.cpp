@@ -19,7 +19,7 @@ int AiThread::evalBoard()
 }
 
 
-int AiThread::evalMinMaxPrior(const int x, const int y, const Chessid id)
+int AiThread::evalMinMaxPrior(const int x, const int y, const Chessid id) const
 {
 	int min_max_prior = 0;
 	__int32 idl2y = id << 2*y;
@@ -70,7 +70,7 @@ int AiThread::evalMinMaxPrior(const int x, const int y, const Chessid id)
 }
 
 
-int AiThread::evalKillPrior(const int x, const int y, const Chessid id)
+int AiThread::evalKillPrior(const int x, const int y, const Chessid id) const
 {
 	int kill_prior = 0;
 	__int32 idl2y = id << 2*y;
@@ -83,12 +83,12 @@ int AiThread::evalKillPrior(const int x, const int y, const Chessid id)
 	int i, count;
 	for(i=0; i<10; ++i, now_col_chess>>=2)
 	{
-		EVAL_KILL_PRIOR(now_col_chess);
+		EVAL_KILL_PRIOR(now_col_chess)
 	}
 
 	for(i=0; i<10; ++i, now_row_chess>>=2)
 	{
-		EVAL_KILL_PRIOR(now_row_chess);
+		EVAL_KILL_PRIOR(now_row_chess)
 	}
 
 	int l = x - y + 10;
@@ -122,8 +122,7 @@ int AiThread::evalKillPrior(const int x, const int y, const Chessid id)
 }
 
 
-
-int AiThread::evalKilledScore(Chessid cur_player, int depth)
+int AiThread::evalKilledScore(Chessid cur_player, int depth) const
 {
 	if (cur_player==AI_CHESS)
 	{
@@ -142,6 +141,9 @@ int AiThread::evalKilledScore(Chessid cur_player, int depth)
 		{
 			if (all_type[I_HU_A3] && !all_type[I_AI_A3] && !all_type[I_AI_S3])
 				return LOSE_SCORE_FIX-2;	// 对方冲四活三，我方无三，我方必败
+				// 注意，如果我方有眠三，下一步则可能会形成双冲四或者冲四活三再同时堵住对面的冲四，然后我方必胜；
+				// 就算我方眠三下一步不能P4A3/2P4，也有可能我方下一步P4能顺带封住对面的P4，然后就不一定必败了
+				// 又如果我方有活三，那显然更不必败了
 		}
 
 //	③双方没有5、4
@@ -151,6 +153,9 @@ int AiThread::evalKilledScore(Chessid cur_player, int depth)
 				return WIN_SCORE_FIX+2;		// 对方没有4，我方有活三，我方必胜
 			else if (all_type[I_HU_A3]>=2 && !all_type[I_AI_A3] && !all_type[I_AI_S3])
 				return LOSE_SCORE_FIX-1;	// 对方有双活三，我方无三，我方必败
+				// 注意，如果我方有眠三，下一步则可能会形成双冲四或者冲四活三，然后我方必胜；
+				// 就算我方眠三下一步不能P4A3/2P4，也有可能我方下一步P4能顺带封住对面一个A3，然后就不一定必败了
+				// 又如果我方有活三，那显然更不必败了
 		}
 	}
 	else
