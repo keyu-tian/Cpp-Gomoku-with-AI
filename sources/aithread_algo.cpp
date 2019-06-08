@@ -1,12 +1,14 @@
 #include "aithread.h"
 
 #define BASE_DEPTH	4
-#define KILL_DEPTH	10
-#define RES_DEPTH	14
+#define KILL_DEPTH	9
+#define RES_DEPTH	11
 #define NEAR_CNT	2
 
 #define __OPEN_EP4	// 敌方冲四优化（在必胜判断函数之后，如果没有立即返回说明不存在必胜。此时如果对方有P4则必只有一个P4，并且我方必须防守。因为我方没有4。）
 #define __OPEN_SA3	// 眠活三优化（当对方没有P4而有活三时，我方只能走：①对方活三的前二防守点 ②我方眠三进攻点 ③对方活三的第三防守点）
+
+// 可能存在的必杀：执黑，按顺序落子：(10,11)(10,10)(9,10)(9,9)(8,9)
 
 #define swapChoice(x, y) do{Choice tp=x; x=y; y=tp;}while(0)
 
@@ -29,7 +31,7 @@ int AiThread::minMaxSearch(const Chessid cur_player, const int depth, int alpha,
 
 	int score;
 
-	Choice choices_buffer[GRID_N * GRID_N];
+	Choice choices_buffer[CHOICE_BUF_SIZE];
 	Choice *p_now = choices_buffer, *p_end = choices_buffer + getMinMaxSearchChoices(choices_buffer, cur_player);
 	int x, y;
 
@@ -117,7 +119,7 @@ int AiThread::killSearch(const Chessid cur_player, const int depth, int alpha, i
 
 	int score, buffer_cnt;
 
-	Choice choices_buffer[GRID_N*GRID_N];
+	Choice choices_buffer[CHOICE_BUF_SIZE];
 	buffer_cnt = getKillSearchChoices(choices_buffer, cur_player);
 	if (!buffer_cnt)					// 找不到杀棋，终止算杀搜索，返回局面估值
 	{
@@ -196,7 +198,7 @@ int AiThread::resSearch(const Chessid cur_player, const int depth, int alpha, in
 
 	int score, buffer_cnt = 0;
 
-	Choice choices_buffer[GRID_N*GRID_N];
+	Choice choices_buffer[CHOICE_BUF_SIZE];
 	buffer_cnt = this->findEnemyP4(choices_buffer, cur_player);
 	if (!buffer_cnt)
 		buffer_cnt = this->findS3A3(choices_buffer, cur_player);
@@ -260,7 +262,6 @@ int AiThread::resSearch(const Chessid cur_player, const int depth, int alpha, in
 		return beta;					// 玩家从所有落子情况中选择分数最低值
 	}
 }
-
 
 
 int AiThread::findEnemyP4(Choice *choices_buffer, const Chessid cur_player) const
@@ -427,6 +428,7 @@ int AiThread::findEnemyP4(Choice *choices_buffer, const Chessid cur_player) cons
 			}
 		}
 	}
+
 	return 0;
 }
 
@@ -934,6 +936,473 @@ exit_aia3_hus3:
 		return 0;
 }
 
+int AiThread::findAllS3A3(Choice *choices_buffer, const Chessid cur_player) const
+{
+	if (cur_player == AI_CHESS)
+	{
+		int hu_a3_cnt = 0, ai_s3_cnt = 0;
+		Choice hu_a3_pos[GRID_N * 3][3], ai_s3_pos[GRID_N * 3][2];
+
+		for (int c=0; c<GRID_N; ++c)
+		{
+			if (col_type[c] & F_HU_A3)  // 在第c列发现了活三
+			{
+				for (__int32 temp_col_chess = col_chess[c], i=0; i<10; ++i, temp_col_chess>>=2)
+				{
+					if (M_TABLE[MASK & temp_col_chess] == F_HU_A3)  // 第i次扫描发现了活三
+					{
+						hu_a3_pos[hu_a3_cnt][0].x = c;
+						hu_a3_pos[hu_a3_cnt][0].y = i + A3_KEY_POS_TABLE[MASK & temp_col_chess][0];
+						hu_a3_pos[hu_a3_cnt][1].x = c;
+						hu_a3_pos[hu_a3_cnt][1].y = i + A3_KEY_POS_TABLE[MASK & temp_col_chess][1];
+						hu_a3_pos[hu_a3_cnt][2].x = c;
+						hu_a3_pos[hu_a3_cnt][2].y = i + A3_KEY_POS_TABLE[MASK & temp_col_chess][2];
+						++hu_a3_cnt;
+						break;
+					}
+				}
+			}
+		}
+		for (int r=0; r<GRID_N; ++r)
+		{
+			if (row_type[r] & F_HU_A3)  // 在第r行找到了活三
+			{
+				for (__int32 temp_row_chess = row_chess[r], i=0; i<10; ++i, temp_row_chess>>=2)
+				{
+					if (M_TABLE[MASK & temp_row_chess] == F_HU_A3)  // 第i次扫描发现了活三
+					{
+						hu_a3_pos[hu_a3_cnt][0].x = i + A3_KEY_POS_TABLE[MASK & temp_row_chess][0];
+						hu_a3_pos[hu_a3_cnt][0].y = r;
+						hu_a3_pos[hu_a3_cnt][1].x = i + A3_KEY_POS_TABLE[MASK & temp_row_chess][1];
+						hu_a3_pos[hu_a3_cnt][1].y = r;
+						hu_a3_pos[hu_a3_cnt][2].x = i + A3_KEY_POS_TABLE[MASK & temp_row_chess][2];
+						hu_a3_pos[hu_a3_cnt][2].y = r;
+						++hu_a3_cnt;
+						break;
+					}
+				}
+			}
+		}
+		for (int l=0; l<GRID_DN; ++l) // l + y = x + 10
+		{
+			if (left_type[l] & F_HU_A3)
+			{
+				for (__int32 temp_left_chess = left_chess[l], i=0, count=getLeftCount(l); i<count; ++i, temp_left_chess>>=2)
+				{
+					if (M_TABLE[MASK & temp_left_chess] == F_HU_A3)
+					{
+						if (l <= 10)
+						{
+							hu_a3_pos[hu_a3_cnt][0].x = i + A3_KEY_POS_TABLE[MASK & temp_left_chess][0];
+							hu_a3_pos[hu_a3_cnt][0].y = 10 - l + hu_a3_pos[hu_a3_cnt][0].x;
+							hu_a3_pos[hu_a3_cnt][1].x = i + A3_KEY_POS_TABLE[MASK & temp_left_chess][1];
+							hu_a3_pos[hu_a3_cnt][1].y = 10 - l + hu_a3_pos[hu_a3_cnt][1].x;
+							hu_a3_pos[hu_a3_cnt][2].x = i + A3_KEY_POS_TABLE[MASK & temp_left_chess][2];
+							hu_a3_pos[hu_a3_cnt][2].y = 10 - l + hu_a3_pos[hu_a3_cnt][2].x;
+						}
+						else
+						{
+							hu_a3_pos[hu_a3_cnt][0].y = i + A3_KEY_POS_TABLE[MASK & temp_left_chess][0];
+							hu_a3_pos[hu_a3_cnt][0].x = l - 10 + hu_a3_pos[hu_a3_cnt][0].y;
+							hu_a3_pos[hu_a3_cnt][1].y = i + A3_KEY_POS_TABLE[MASK & temp_left_chess][1];
+							hu_a3_pos[hu_a3_cnt][1].x = l - 10 + hu_a3_pos[hu_a3_cnt][1].y;
+							hu_a3_pos[hu_a3_cnt][2].y = i + A3_KEY_POS_TABLE[MASK & temp_left_chess][2];
+							hu_a3_pos[hu_a3_cnt][2].x = l - 10 + hu_a3_pos[hu_a3_cnt][2].y;
+						}
+
+						++hu_a3_cnt;
+						break;
+					}
+				}
+			}
+		}
+		for (int r=0; r<GRID_DN; ++r) // r + 4 = x + y
+		{
+			if (right_type[r] & F_HU_A3)
+			{
+				for (__int32 temp_right_chess = right_chess[r], i=0, count=getRightCount(r); i<count; ++i, temp_right_chess>>=2)
+				{
+					if (M_TABLE[MASK & temp_right_chess] == F_HU_A3)
+					{
+						if (r <= 10)
+						{
+							hu_a3_pos[hu_a3_cnt][0].y = i + A3_KEY_POS_TABLE[MASK & temp_right_chess][0];
+							hu_a3_pos[hu_a3_cnt][0].x = r + 4 - hu_a3_pos[hu_a3_cnt][0].y;
+							hu_a3_pos[hu_a3_cnt][1].y = i + A3_KEY_POS_TABLE[MASK & temp_right_chess][1];
+							hu_a3_pos[hu_a3_cnt][1].x = r + 4 - hu_a3_pos[hu_a3_cnt][1].y;
+							hu_a3_pos[hu_a3_cnt][2].y = i + A3_KEY_POS_TABLE[MASK & temp_right_chess][2];
+							hu_a3_pos[hu_a3_cnt][2].x = r + 4 - hu_a3_pos[hu_a3_cnt][2].y;
+						}
+						else
+						{
+							hu_a3_pos[hu_a3_cnt][0].x = 14 - i - A3_KEY_POS_TABLE[MASK & temp_right_chess][0];
+							hu_a3_pos[hu_a3_cnt][0].y = r + 4 - hu_a3_pos[hu_a3_cnt][0].x;
+							hu_a3_pos[hu_a3_cnt][1].x = 14 - i - A3_KEY_POS_TABLE[MASK & temp_right_chess][1];
+							hu_a3_pos[hu_a3_cnt][1].y = r + 4 - hu_a3_pos[hu_a3_cnt][1].x;
+							hu_a3_pos[hu_a3_cnt][2].x = 14 - i - A3_KEY_POS_TABLE[MASK & temp_right_chess][2];
+							hu_a3_pos[hu_a3_cnt][2].y = r + 4 - hu_a3_pos[hu_a3_cnt][2].x;
+						}
+
+						++hu_a3_cnt;
+						break;
+					}
+				}
+			}
+		}
+
+
+		for (int c=0; c<GRID_N; ++c)
+		{
+			if (col_type[c] & F_AI_S3)  // 在第c列发现了活三
+			{
+				for (__int32 temp_col_chess = col_chess[c], i=0; i<10; ++i, temp_col_chess>>=2)
+				{
+					if (M_TABLE[MASK & temp_col_chess] == F_AI_S3)  // 第i次扫描发现了活三
+					{
+						ai_s3_pos[ai_s3_cnt][0].x = c;
+						ai_s3_pos[ai_s3_cnt][0].y = i + S3_KEY_POS_TABLE[MASK & temp_col_chess][0];
+						ai_s3_pos[ai_s3_cnt][1].x = c;
+						ai_s3_pos[ai_s3_cnt][1].y = i + S3_KEY_POS_TABLE[MASK & temp_col_chess][1];
+						++ai_s3_cnt;
+						break;
+					}
+				}
+			}
+		}
+		for (int r=0; r<GRID_N; ++r)
+		{
+			if (row_type[r] & F_AI_S3)  // 在第r行找到了活三
+			{
+				for (__int32 temp_row_chess = row_chess[r], i=0; i<10; ++i, temp_row_chess>>=2)
+				{
+					if (M_TABLE[MASK & temp_row_chess] == F_AI_S3)  // 第i次扫描发现了活三
+					{
+						ai_s3_pos[ai_s3_cnt][0].x = i + S3_KEY_POS_TABLE[MASK & temp_row_chess][0];
+						ai_s3_pos[ai_s3_cnt][0].y = r;
+						ai_s3_pos[ai_s3_cnt][1].x = i + S3_KEY_POS_TABLE[MASK & temp_row_chess][1];
+						ai_s3_pos[ai_s3_cnt][1].y = r;
+						++ai_s3_cnt;
+						break;
+					}
+				}
+			}
+		}
+		for (int l=0; l<GRID_DN; ++l) // l + y = x + 10
+		{
+			if (left_type[l] & F_AI_S3)
+			{
+				for (__int32 temp_left_chess = left_chess[l], i=0, count=getLeftCount(l); i<count; ++i, temp_left_chess>>=2)
+				{
+					if (M_TABLE[MASK & temp_left_chess] == F_AI_S3)
+					{
+						if (l <= 10)
+						{
+							ai_s3_pos[ai_s3_cnt][0].x = i + S3_KEY_POS_TABLE[MASK & temp_left_chess][0];
+							ai_s3_pos[ai_s3_cnt][0].y = 10 - l + ai_s3_pos[ai_s3_cnt][0].x;
+							ai_s3_pos[ai_s3_cnt][1].x = i + S3_KEY_POS_TABLE[MASK & temp_left_chess][1];
+							ai_s3_pos[ai_s3_cnt][1].y = 10 - l + ai_s3_pos[ai_s3_cnt][1].x;
+						}
+						else
+						{
+							ai_s3_pos[ai_s3_cnt][0].y = i + S3_KEY_POS_TABLE[MASK & temp_left_chess][0];
+							ai_s3_pos[ai_s3_cnt][0].x = l - 10 + ai_s3_pos[ai_s3_cnt][0].y;
+							ai_s3_pos[ai_s3_cnt][1].y = i + S3_KEY_POS_TABLE[MASK & temp_left_chess][1];
+							ai_s3_pos[ai_s3_cnt][1].x = l - 10 + ai_s3_pos[ai_s3_cnt][1].y;
+						}
+
+						++ai_s3_cnt;
+						break;
+					}
+				}
+			}
+		}
+		for (int r=0; r<GRID_DN; ++r) // r + 4 = x + y
+		{
+			if (right_type[r] & F_AI_S3)
+			{
+				for (__int32 temp_right_chess = right_chess[r], i=0, count=getRightCount(r); i<count; ++i, temp_right_chess>>=2)
+				{
+					if (M_TABLE[MASK & temp_right_chess] == F_AI_S3)
+					{
+						if (r <= 10)
+						{
+							ai_s3_pos[ai_s3_cnt][0].y = i + S3_KEY_POS_TABLE[MASK & temp_right_chess][0];
+							ai_s3_pos[ai_s3_cnt][0].x = r + 4 - ai_s3_pos[ai_s3_cnt][0].y;
+							ai_s3_pos[ai_s3_cnt][1].y = i + S3_KEY_POS_TABLE[MASK & temp_right_chess][1];
+							ai_s3_pos[ai_s3_cnt][1].x = r + 4 - ai_s3_pos[ai_s3_cnt][1].y;
+						}
+						else
+						{
+							ai_s3_pos[ai_s3_cnt][0].x = 14 - i - S3_KEY_POS_TABLE[MASK & temp_right_chess][0];
+							ai_s3_pos[ai_s3_cnt][0].y = r + 4 - ai_s3_pos[ai_s3_cnt][0].x;
+							ai_s3_pos[ai_s3_cnt][1].x = 14 - i - S3_KEY_POS_TABLE[MASK & temp_right_chess][1];
+							ai_s3_pos[ai_s3_cnt][1].y = r + 4 - ai_s3_pos[ai_s3_cnt][1].x;
+						}
+
+						++ai_s3_cnt;
+						break;
+					}
+				}
+			}
+		}
+
+		int top = 0;
+
+		for (int i=0; i<hu_a3_cnt; ++i)
+		{
+			choices_buffer[top].x = hu_a3_pos[i][0].x, choices_buffer[top].y = hu_a3_pos[i][0].y; ++top;
+			choices_buffer[top].x = hu_a3_pos[i][1].x, choices_buffer[top].y = hu_a3_pos[i][1].y; ++top;
+		}
+
+		for (int i=0; i<ai_s3_cnt; ++i)
+		{
+			choices_buffer[top].x = ai_s3_pos[i][0].x, choices_buffer[top].y = ai_s3_pos[i][0].y; ++top;
+			choices_buffer[top].x = ai_s3_pos[i][1].x, choices_buffer[top].y = ai_s3_pos[i][1].y; ++top;
+		}
+
+		for (int i=0; i<hu_a3_cnt; ++i)
+		{
+			choices_buffer[top].x = hu_a3_pos[i][2].x, choices_buffer[top].y = hu_a3_pos[i][2].y; ++top;
+		}
+
+		return top;
+	}
+
+	else if (cur_player == H1_CHESS)
+	{
+		int ai_a3_cnt = 0, hu_s3_cnt = 0;
+		Choice ai_a3_pos[GRID_N * 3][3], hu_s3_pos[GRID_N * 3][2];
+
+		for (int c=0; c<GRID_N; ++c)
+		{
+			if (col_type[c] & F_AI_A3)  // 在第c列发现了活三
+			{
+				for (__int32 temp_col_chess = col_chess[c], i=0; i<10; ++i, temp_col_chess>>=2)
+				{
+					if (M_TABLE[MASK & temp_col_chess] == F_AI_A3)  // 第i次扫描发现了活三
+					{
+						ai_a3_pos[ai_a3_cnt][0].x = c;
+						ai_a3_pos[ai_a3_cnt][0].y = i + A3_KEY_POS_TABLE[MASK & temp_col_chess][0];
+						ai_a3_pos[ai_a3_cnt][1].x = c;
+						ai_a3_pos[ai_a3_cnt][1].y = i + A3_KEY_POS_TABLE[MASK & temp_col_chess][1];
+						ai_a3_pos[ai_a3_cnt][2].x = c;
+						ai_a3_pos[ai_a3_cnt][2].y = i + A3_KEY_POS_TABLE[MASK & temp_col_chess][2];
+						++ai_a3_cnt;
+						break;
+					}
+				}
+			}
+		}
+		for (int r=0; r<GRID_N; ++r)
+		{
+			if (row_type[r] & F_AI_A3)  // 在第r行找到了活三
+			{
+				for (__int32 temp_row_chess = row_chess[r], i=0; i<10; ++i, temp_row_chess>>=2)
+				{
+					if (M_TABLE[MASK & temp_row_chess] == F_AI_A3)  // 第i次扫描发现了活三
+					{
+						ai_a3_pos[ai_a3_cnt][0].x = i + A3_KEY_POS_TABLE[MASK & temp_row_chess][0];
+						ai_a3_pos[ai_a3_cnt][0].y = r;
+						ai_a3_pos[ai_a3_cnt][1].x = i + A3_KEY_POS_TABLE[MASK & temp_row_chess][1];
+						ai_a3_pos[ai_a3_cnt][1].y = r;
+						ai_a3_pos[ai_a3_cnt][2].x = i + A3_KEY_POS_TABLE[MASK & temp_row_chess][2];
+						ai_a3_pos[ai_a3_cnt][2].y = r;
+						++ai_a3_cnt;
+						break;
+					}
+				}
+			}
+		}
+		for (int l=0; l<GRID_DN; ++l) // l + y = x + 10
+		{
+			if (left_type[l] & F_AI_A3)
+			{
+				for (__int32 temp_left_chess = left_chess[l], i=0, count=getLeftCount(l); i<count; ++i, temp_left_chess>>=2)
+				{
+					if (M_TABLE[MASK & temp_left_chess] == F_AI_A3)
+					{
+						if (l <= 10)
+						{
+							ai_a3_pos[ai_a3_cnt][0].x = i + A3_KEY_POS_TABLE[MASK & temp_left_chess][0];
+							ai_a3_pos[ai_a3_cnt][0].y = 10 - l + ai_a3_pos[ai_a3_cnt][0].x;
+							ai_a3_pos[ai_a3_cnt][1].x = i + A3_KEY_POS_TABLE[MASK & temp_left_chess][1];
+							ai_a3_pos[ai_a3_cnt][1].y = 10 - l + ai_a3_pos[ai_a3_cnt][1].x;
+							ai_a3_pos[ai_a3_cnt][2].x = i + A3_KEY_POS_TABLE[MASK & temp_left_chess][2];
+							ai_a3_pos[ai_a3_cnt][2].y = 10 - l + ai_a3_pos[ai_a3_cnt][2].x;
+						}
+						else
+						{
+							ai_a3_pos[ai_a3_cnt][0].y = i + A3_KEY_POS_TABLE[MASK & temp_left_chess][0];
+							ai_a3_pos[ai_a3_cnt][0].x = l - 10 + ai_a3_pos[ai_a3_cnt][0].y;
+							ai_a3_pos[ai_a3_cnt][1].y = i + A3_KEY_POS_TABLE[MASK & temp_left_chess][1];
+							ai_a3_pos[ai_a3_cnt][1].x = l - 10 + ai_a3_pos[ai_a3_cnt][1].y;
+							ai_a3_pos[ai_a3_cnt][2].y = i + A3_KEY_POS_TABLE[MASK & temp_left_chess][2];
+							ai_a3_pos[ai_a3_cnt][2].x = l - 10 + ai_a3_pos[ai_a3_cnt][2].y;
+						}
+
+						++ai_a3_cnt;
+						break;
+					}
+				}
+			}
+		}
+		for (int r=0; r<GRID_DN; ++r) // r + 4 = x + y
+		{
+			if (right_type[r] & F_AI_A3)
+			{
+				for (__int32 temp_right_chess = right_chess[r], i=0, count=getRightCount(r); i<count; ++i, temp_right_chess>>=2)
+				{
+					if (M_TABLE[MASK & temp_right_chess] == F_AI_A3)
+					{
+						if (r <= 10)
+						{
+							ai_a3_pos[ai_a3_cnt][0].y = i + A3_KEY_POS_TABLE[MASK & temp_right_chess][0];
+							ai_a3_pos[ai_a3_cnt][0].x = r + 4 - ai_a3_pos[ai_a3_cnt][0].y;
+							ai_a3_pos[ai_a3_cnt][1].y = i + A3_KEY_POS_TABLE[MASK & temp_right_chess][1];
+							ai_a3_pos[ai_a3_cnt][1].x = r + 4 - ai_a3_pos[ai_a3_cnt][1].y;
+							ai_a3_pos[ai_a3_cnt][2].y = i + A3_KEY_POS_TABLE[MASK & temp_right_chess][2];
+							ai_a3_pos[ai_a3_cnt][2].x = r + 4 - ai_a3_pos[ai_a3_cnt][2].y;
+						}
+						else
+						{
+							ai_a3_pos[ai_a3_cnt][0].x = 14 - i - A3_KEY_POS_TABLE[MASK & temp_right_chess][0];
+							ai_a3_pos[ai_a3_cnt][0].y = r + 4 - ai_a3_pos[ai_a3_cnt][0].x;
+							ai_a3_pos[ai_a3_cnt][1].x = 14 - i - A3_KEY_POS_TABLE[MASK & temp_right_chess][1];
+							ai_a3_pos[ai_a3_cnt][1].y = r + 4 - ai_a3_pos[ai_a3_cnt][1].x;
+							ai_a3_pos[ai_a3_cnt][2].x = 14 - i - A3_KEY_POS_TABLE[MASK & temp_right_chess][2];
+							ai_a3_pos[ai_a3_cnt][2].y = r + 4 - ai_a3_pos[ai_a3_cnt][2].x;
+						}
+
+						++ai_a3_cnt;
+						break;
+					}
+				}
+			}
+		}
+
+
+		for (int c=0; c<GRID_N; ++c)
+		{
+			if (col_type[c] & F_HU_S3)  // 在第c列发现了活三
+			{
+				for (__int32 temp_col_chess = col_chess[c], i=0; i<10; ++i, temp_col_chess>>=2)
+				{
+					if (M_TABLE[MASK & temp_col_chess] == F_HU_S3)  // 第i次扫描发现了活三
+					{
+						hu_s3_pos[hu_s3_cnt][0].x = c;
+						hu_s3_pos[hu_s3_cnt][0].y = i + S3_KEY_POS_TABLE[MASK & temp_col_chess][0];
+						hu_s3_pos[hu_s3_cnt][1].x = c;
+						hu_s3_pos[hu_s3_cnt][1].y = i + S3_KEY_POS_TABLE[MASK & temp_col_chess][1];
+						++hu_s3_cnt;
+						break;
+					}
+				}
+			}
+		}
+		for (int r=0; r<GRID_N; ++r)
+		{
+			if (row_type[r] & F_HU_S3)  // 在第r行找到了活三
+			{
+				for (__int32 temp_row_chess = row_chess[r], i=0; i<10; ++i, temp_row_chess>>=2)
+				{
+					if (M_TABLE[MASK & temp_row_chess] == F_HU_S3)  // 第i次扫描发现了活三
+					{
+						hu_s3_pos[hu_s3_cnt][0].x = i + S3_KEY_POS_TABLE[MASK & temp_row_chess][0];
+						hu_s3_pos[hu_s3_cnt][0].y = r;
+						hu_s3_pos[hu_s3_cnt][1].x = i + S3_KEY_POS_TABLE[MASK & temp_row_chess][1];
+						hu_s3_pos[hu_s3_cnt][1].y = r;
+						++hu_s3_cnt;
+						break;
+					}
+				}
+			}
+		}
+		for (int l=0; l<GRID_DN; ++l) // l + y = x + 10
+		{
+			if (left_type[l] & F_HU_S3)
+			{
+				for (__int32 temp_left_chess = left_chess[l], i=0, count=getLeftCount(l); i<count; ++i, temp_left_chess>>=2)
+				{
+					if (M_TABLE[MASK & temp_left_chess] == F_HU_S3)
+					{
+						if (l <= 10)
+						{
+							hu_s3_pos[hu_s3_cnt][0].x = i + S3_KEY_POS_TABLE[MASK & temp_left_chess][0];
+							hu_s3_pos[hu_s3_cnt][0].y = 10 - l + hu_s3_pos[hu_s3_cnt][0].x;
+							hu_s3_pos[hu_s3_cnt][1].x = i + S3_KEY_POS_TABLE[MASK & temp_left_chess][1];
+							hu_s3_pos[hu_s3_cnt][1].y = 10 - l + hu_s3_pos[hu_s3_cnt][1].x;
+						}
+						else
+						{
+							hu_s3_pos[hu_s3_cnt][0].y = i + S3_KEY_POS_TABLE[MASK & temp_left_chess][0];
+							hu_s3_pos[hu_s3_cnt][0].x = l - 10 + hu_s3_pos[hu_s3_cnt][0].y;
+							hu_s3_pos[hu_s3_cnt][1].y = i + S3_KEY_POS_TABLE[MASK & temp_left_chess][1];
+							hu_s3_pos[hu_s3_cnt][1].x = l - 10 + hu_s3_pos[hu_s3_cnt][1].y;
+						}
+
+						++hu_s3_cnt;
+						break;
+					}
+				}
+			}
+		}
+		for (int r=0; r<GRID_DN; ++r) // r + 4 = x + y
+		{
+			if (right_type[r] & F_HU_S3)
+			{
+				for (__int32 temp_right_chess = right_chess[r], i=0, count=getRightCount(r); i<count; ++i, temp_right_chess>>=2)
+				{
+					if (M_TABLE[MASK & temp_right_chess] == F_HU_S3)
+					{
+						if (r <= 10)
+						{
+							hu_s3_pos[hu_s3_cnt][0].y = i + S3_KEY_POS_TABLE[MASK & temp_right_chess][0];
+							hu_s3_pos[hu_s3_cnt][0].x = r + 4 - hu_s3_pos[hu_s3_cnt][0].y;
+							hu_s3_pos[hu_s3_cnt][1].y = i + S3_KEY_POS_TABLE[MASK & temp_right_chess][1];
+							hu_s3_pos[hu_s3_cnt][1].x = r + 4 - hu_s3_pos[hu_s3_cnt][1].y;
+						}
+						else
+						{
+							hu_s3_pos[hu_s3_cnt][0].x = 14 - i - S3_KEY_POS_TABLE[MASK & temp_right_chess][0];
+							hu_s3_pos[hu_s3_cnt][0].y = r + 4 - hu_s3_pos[hu_s3_cnt][0].x;
+							hu_s3_pos[hu_s3_cnt][1].x = 14 - i - S3_KEY_POS_TABLE[MASK & temp_right_chess][1];
+							hu_s3_pos[hu_s3_cnt][1].y = r + 4 - hu_s3_pos[hu_s3_cnt][1].x;
+						}
+
+						++hu_s3_cnt;
+						break;
+					}
+				}
+			}
+		}
+
+		int top = 0;
+
+		for (int i=0; i<ai_a3_cnt; ++i)
+		{
+			choices_buffer[top].x = ai_a3_pos[i][0].x, choices_buffer[top].y = ai_a3_pos[i][0].y; ++top;
+			choices_buffer[top].x = ai_a3_pos[i][1].x, choices_buffer[top].y = ai_a3_pos[i][1].y; ++top;
+		}
+
+		for (int i=0; i<hu_s3_cnt; ++i)
+		{
+			choices_buffer[top].x = hu_s3_pos[i][0].x, choices_buffer[top].y = hu_s3_pos[i][0].y; ++top;
+			choices_buffer[top].x = hu_s3_pos[i][1].x, choices_buffer[top].y = hu_s3_pos[i][1].y; ++top;
+		}
+
+		for (int i=0; i<ai_a3_cnt; ++i)
+		{
+			choices_buffer[top].x = ai_a3_pos[i][2].x, choices_buffer[top].y = ai_a3_pos[i][2].y; ++top;
+		}
+
+		return top;
+	}
+
+	else
+		return 0;
+}
+
+
 int AiThread::getMinMaxSearchChoices(Choice *choices_buffer, Chessid cur_player) const
 {
 #ifdef __OPEN_EP4
@@ -984,6 +1453,7 @@ int AiThread::getMinMaxSearchChoices(Choice *choices_buffer, Chessid cur_player)
 	}
 
 	myQuickSort(choices_buffer, cnt);
+
 	return cnt;
 }
 
@@ -1037,7 +1507,11 @@ int AiThread::getKillSearchChoices(Choice *choices_buffer, Chessid cur_player) c
 		}
 	}
 
-	myQuickSort(choices_buffer, cnt);
+	if (cnt)
+	{
+		myQuickSort(choices_buffer, cnt);
+	}
+
 	return cnt;
 }
 
