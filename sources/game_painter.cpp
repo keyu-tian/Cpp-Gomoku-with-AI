@@ -78,7 +78,8 @@ void GamePainter::drawAIPreMove(const Grid &c)
 	radi.setColorAt(0, qRgb(WHITE1, WHITE1, WHITE1));
 
 	QPen pen;
-	pen.setColor(qRgb(100, 160, 50));
+//	pen.setColor(qRgb(100, 160, 50));
+	pen.setColor(qRgb(13, 144, 233));
 	pen.setWidth(2);
 	pen.setStyle(Qt::DotLine);
 
@@ -105,20 +106,12 @@ void GamePainter::drawChess(const ChessBoard &c)
 			{
 				if (now_id == black_player_id)
 				{
-//					radi.setColorAt(0,qRgb(WHITE2, WHITE2, WHITE2));
-//					this->setBrush(radi);
-//					this->drawEllipse(BOARD_U + GRID_W * (i+1) - CHESS_R-2, BOARD_U + GRID_W * (j+1) - CHESS_R-2, (CHESS_R+2) * 2, (CHESS_R+2) * 2);
-
 					radi.setColorAt(0,qRgb(BLACK1, BLACK1, BLACK1));
 					this->setBrush(radi);
 					this->drawEllipse(BOARD_L + GRID_W * (i+1) - CHESS_R, BOARD_L + GRID_W * (j+1) - CHESS_R, CHESS_R * 2, CHESS_R * 2);
 				}
 				else
 				{
-//					radi.setColorAt(0,qRgb(WHITE2, WHITE2, WHITE2));
-//					this->setBrush(radi);
-//					this->drawEllipse(BOARD_U + GRID_W * (i+1) - CHESS_R-1, BOARD_U + GRID_W * (j+1) - CHESS_R-1, (CHESS_R+1) * 2, (CHESS_R+1) * 2);
-
 					radi.setColorAt(0,qRgb(BLACK2, BLACK2, BLACK2));
 					this->setBrush(radi);
 					this->drawEllipse(BOARD_L + GRID_W * (i+1) - CHESS_R, BOARD_L + GRID_W * (j+1) - CHESS_R, CHESS_R * 2, CHESS_R * 2);
@@ -145,7 +138,6 @@ void GamePainter::drawLastMove(const Grid &c, bool is_black)
 	else
 	{
 		radi.setColorAt(0, qRgb(WHITE1, WHITE1, WHITE1));
-//		this->setPen(qRgb(WHITE1, WHITE1, WHITE1));  // setPen后，显示的白色最近落子提示点就太大了
 	}
 
 	this->setBrush(radi);
@@ -156,4 +148,3 @@ void GamePainter::drawLastMove(const Grid &c, bool is_black)
 
 	this->setPen(prev_pen);
 }
-
