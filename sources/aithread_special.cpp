@@ -6,11 +6,10 @@
 
 void AiThread::firstRound()
 {
-	this->msleep(300);
-
+	// 第一轮，若AI先手，则选择棋盘正中心；若后手但对手没有落子在正中心，也选择正中心
 	if (mirror_board[BOARD_CTR][BOARD_CTR] == NO_CHESS)
 		ai_next_move.x = ai_next_move.y = BOARD_CTR;
-	else
+	else // AI后手且对手落在了正中心，AI随机落在其四个对角线位置
 	{
 		int dx = 0, dy = 0;
 		while (dx==0 || dy==0)
@@ -20,33 +19,14 @@ void AiThread::firstRound()
 		}
 		ai_next_move.x = BOARD_CTR + dx;
 		ai_next_move.y = BOARD_CTR + dy;
-
-//		switch(rand()%4)
-//		{
-//			case 0:
-//				ai_next_move.x = BOARD_CTR+1;
-//				ai_next_move.y = BOARD_CTR;
-//				break;
-//			case 1:
-//				ai_next_move.x = BOARD_CTR;
-//				ai_next_move.y = BOARD_CTR+1;
-//				break;
-//			case 2:
-//				ai_next_move.x = BOARD_CTR-1;
-//				ai_next_move.y = BOARD_CTR;
-//				break;
-//			case 3:
-//				ai_next_move.x = BOARD_CTR;
-//				ai_next_move.y = BOARD_CTR-1;
-//				break;
-//		}
 	}
+	emit findingNextMove(ai_next_move);
+
+	this->msleep(300);
 }
 
 void AiThread::secondRound()
 {
-	this->msleep(1000);
-
 	int x, y;
 	bool found;
 
@@ -64,7 +44,7 @@ void AiThread::secondRound()
 	}
 	if (found)	// 非妖刀
 	{
-		if ( BOARD_CTR==x )			// 直止，花月
+		if ( BOARD_CTR==x )		// 直止，花月
 		{
 			ai_next_move.x = x + 2*(rand()&1)-1;
 			ai_next_move.y = y;
@@ -99,6 +79,9 @@ void AiThread::secondRound()
 		ai_next_move.x = BOARD_CTR + dx;
 		ai_next_move.y = BOARD_CTR + dy;
 	}
+	emit findingNextMove(ai_next_move);
+
+	this->msleep(800);
 }
 
 void AiThread::highestPriorityAttack()
@@ -119,6 +102,7 @@ void AiThread::highestPriorityAttack()
 			}
 		}
 	}
+	emit findingNextMove(ai_next_move);
 }
 
 void AiThread::highestPriorityDefence()
@@ -139,4 +123,5 @@ void AiThread::highestPriorityDefence()
 			}
 		}
 	}
+	emit findingNextMove(ai_next_move);
 }
