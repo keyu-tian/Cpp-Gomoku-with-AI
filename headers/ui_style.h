@@ -3,6 +3,7 @@
 
 #include <QString>
 
+
 const QString CTRL_BUTTON_STYLE =
 		// 操作按钮风格（扁平，圆角，黑白）
 		"QPushButton"
@@ -80,5 +81,6 @@ const QString TITLE_BUTTON_STYLE[] = {
 		"}"
 		//鼠标悬停样式（无）
 		};
+
 
 #endif // UI_STYLE_H
